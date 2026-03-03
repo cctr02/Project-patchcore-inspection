@@ -14,9 +14,15 @@ import patchcore.patchcore
 import patchcore.sampler
 import patchcore.utils
 
+# Rend le dossier contribution/ importable quel que soit le répertoire de lancement
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
 LOGGER = logging.getLogger(__name__)
 
-_DATASETS = {"mvtec": ["patchcore.datasets.mvtec", "MVTecDataset"]}
+_DATASETS = {
+    "mvtec": ["patchcore.datasets.mvtec", "MVTecDataset"],
+    "visa":  ["contribution.visa",         "VisADataset"],
+}
 
 
 @click.group(chain=True)
