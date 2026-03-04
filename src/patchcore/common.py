@@ -21,6 +21,7 @@ class FaissNN(object):
         """
         faiss.omp_set_num_threads(num_workers)
         self.on_gpu = on_gpu
+        self.num_workers = num_workers
         self.search_index = None
 
     def _gpu_cloner_options(self):
@@ -95,6 +96,35 @@ class FaissNN(object):
         if self.search_index:
             self.search_index.reset()
             self.search_index = None
+
+
+class CosineNN(FaissNN):
+    """FaissNN with L2-normalization before fit and query.
+
+    For unit-norm vectors ||a-b||² = 2*(1 - cos θ), so L2 ranking ≡ cosine
+    ranking.  Normalising features removes misleading norm differences that
+    are common in LayerNorm-heavy backbones (e.g. ConvNeXt V2).
+    WideResNet is unaffected — CosineNN is only instantiated for ConvNeXt.
+    """
+
+    @staticmethod
+    def _l2_normalize(features: np.ndarray) -> np.ndarray:
+        norms = np.linalg.norm(features, axis=1, keepdims=True)
+        return features / np.maximum(norms, 1e-10)
+
+    def fit(self, features: np.ndarray) -> None:
+        super().fit(self._l2_normalize(features))
+
+    def run(
+        self,
+        n_nearest_neighbours,
+        query_features: np.ndarray,
+        index_features: np.ndarray = None,
+    ) -> Union[np.ndarray, np.ndarray, np.ndarray]:
+        query_features = self._l2_normalize(query_features)
+        if index_features is not None:
+            index_features = self._l2_normalize(index_features)
+        return super().run(n_nearest_neighbours, query_features, index_features)
 
 
 class ApproximateFaissNN(FaissNN):
@@ -269,6 +299,156 @@ class NetworkFeatureAggregator(torch.nn.Module):
 
     def feature_dimensions(self, input_shape):
         """Computes the feature dimensions for all layers given input_shape."""
+        _input = torch.ones([1] + list(input_shape)).to(self.device)
+        _output = self(_input)
+        return [_output[layer].shape[1] for layer in self.layers_to_extract_from]
+
+
+class FeaturesOnlyAggregator(torch.nn.Module):
+    """Feature extraction using timm's features_only=True interface.
+
+    Avoids forward hooks by relying on the model's native multi-scale output.
+    Functionally equivalent to NetworkFeatureAggregator for ConvNeXt V2, but
+    cleaner: no exception-based early stopping, no hook registration.
+
+    Expects layer names of the form "stages.N" (e.g. "stages.1", "stages.2").
+    Returns a dict {layer_name: tensor [B, C, H, W]}, same as
+    NetworkFeatureAggregator, so the rest of the PatchCore pipeline is
+    unchanged.
+    """
+
+    def __init__(self, timm_model_name: str, layers_to_extract_from, device):
+        super().__init__()
+        import timm as _timm
+        self.layers_to_extract_from = layers_to_extract_from
+        # "stages.1" -> 1,  "stages.2" -> 2
+        self.out_indices = tuple(
+            int(layer.split(".")[-1]) for layer in layers_to_extract_from
+        )
+        self.backbone = _timm.create_model(
+            timm_model_name,
+            pretrained=True,
+            features_only=True,
+            out_indices=self.out_indices,
+        )
+        self.device = device
+        self.to(device)
+
+    def forward(self, images):
+        feature_list = self.backbone(images)
+        return {
+            layer: feat
+            for layer, feat in zip(self.layers_to_extract_from, feature_list)
+        }
+
+    def feature_dimensions(self, input_shape):
+        _input = torch.ones([1] + list(input_shape)).to(self.device)
+        _output = self(_input)
+        return [_output[layer].shape[1] for layer in self.layers_to_extract_from]
+
+
+class DINOv2Aggregator(torch.nn.Module):
+    """Feature extraction from DINOv2 ViT using intermediate transformer blocks.
+
+    Layer names follow the convention "blocks.N" (0-based block index).
+    The patch tokens at each requested block are reshaped from (B, N, C) to
+    (B, C, H, W) so the rest of the PatchCore pipeline (patchify, preprocessing,
+    aggregation) is completely unchanged.
+
+    Block index recommendations:
+        ViT-S/B  (12 blocks):  -le blocks.5  -le blocks.11
+        ViT-L    (24 blocks):  -le blocks.11 -le blocks.23
+        ViT-G    (40 blocks):  -le blocks.19 -le blocks.39
+
+    All blocks of a given model share the same channel count:
+        ViT-S: 384   ViT-B: 768   ViT-L: 1024   ViT-G: 1536
+
+    Uses CosineNN (set automatically by run_patchcore.py) because DINOv2 uses
+    LayerNorm throughout, leading to variable feature norms.
+    """
+
+    def __init__(self, timm_model_name: str, layers_to_extract_from, device):
+        super().__init__()
+        import math
+        import timm as _timm
+        import timm.layers.pos_embed as _pe
+        import timm.models.vision_transformer as _vit
+
+        self.layers_to_extract_from = list(layers_to_extract_from)
+        # "blocks.5" → 5,  "blocks.11" → 11
+        self.block_indices = [
+            int(layer.split(".")[-1]) for layer in self.layers_to_extract_from
+        ]
+
+        # timm 0.9.x passes antialias=True to F.interpolate when resampling positional
+        # embeddings, but PyTorch < 2.0 does not support that parameter.  Monkey-patch
+        # the function so it is silently dropped on old PyTorch installations.
+        _torch_major_minor = tuple(int(x) for x in torch.__version__.split(".")[:2])
+
+        def _resample_abs_pos_embed_compat(
+            posemb,
+            new_size,
+            old_size=None,
+            num_prefix_tokens=1,
+            interpolation="bicubic",
+            antialias=True,
+            verbose=False,
+        ):
+            num_pos_tokens = posemb.shape[1]
+            num_new_tokens = new_size[0] * new_size[1] + num_prefix_tokens
+            if num_new_tokens == num_pos_tokens and new_size[0] == new_size[1]:
+                return posemb
+            if old_size is None:
+                hw = int(math.sqrt(num_pos_tokens - num_prefix_tokens))
+                old_size = hw, hw
+            if num_prefix_tokens:
+                posemb_prefix, posemb = posemb[:, :num_prefix_tokens], posemb[:, num_prefix_tokens:]
+            else:
+                posemb_prefix, posemb = None, posemb
+            embed_dim = posemb.shape[-1]
+            orig_dtype = posemb.dtype
+            posemb = posemb.float().reshape(1, old_size[0], old_size[1], -1).permute(0, 3, 1, 2)
+            if _torch_major_minor >= (2, 0):
+                posemb = F.interpolate(posemb, size=new_size, mode=interpolation, antialias=antialias)
+            else:
+                posemb = F.interpolate(posemb, size=new_size, mode=interpolation)
+            posemb = posemb.permute(0, 2, 3, 1).reshape(1, -1, embed_dim).to(orig_dtype)
+            if posemb_prefix is not None:
+                posemb = torch.cat([posemb_prefix, posemb], dim=1)
+            return posemb
+
+        _pe.resample_abs_pos_embed = _resample_abs_pos_embed_compat
+        _vit.resample_abs_pos_embed = _resample_abs_pos_embed_compat
+
+        self.backbone = _timm.create_model(
+            timm_model_name, pretrained=True, dynamic_img_size=True
+        )
+        self.backbone.eval()
+        self.device = device
+        self.to(device)
+
+    def forward(self, images):
+        with torch.no_grad():
+            # get_intermediate_layers returns patch tokens only (CLS and register
+            # tokens are excluded by default), shape (B, N_patches, C) per block.
+            feature_list = self.backbone.get_intermediate_layers(
+                images, n=self.block_indices
+            )
+
+        # Reshape (B, N, C) → (B, C, H, W).  Images are always square in
+        # PatchCore so sqrt(N) is an integer (patch_size=14, imagesize ∝ 14).
+        spatial = []
+        for feat in feature_list:
+            B, N, C = feat.shape
+            H = W = int(N ** 0.5)
+            spatial.append(feat.permute(0, 2, 1).reshape(B, C, H, W))
+
+        return {
+            layer: feat
+            for layer, feat in zip(self.layers_to_extract_from, spatial)
+        }
+
+    def feature_dimensions(self, input_shape):
         _input = torch.ones([1] + list(input_shape)).to(self.device)
         _output = self(_input)
         return [_output[layer].shape[1] for layer in self.layers_to_extract_from]

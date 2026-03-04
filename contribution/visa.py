@@ -31,6 +31,7 @@ import csv
 import os
 from enum import Enum
 
+import numpy as np
 import PIL.Image
 import torch
 from torchvision import transforms
@@ -90,6 +91,7 @@ class VisADataset(torch.utils.data.Dataset):
         imagesize=224,
         split=DatasetSplit.TRAIN,
         train_val_split=1.0,
+        log_dir=None,
         **kwargs,
     ):
         """
@@ -105,6 +107,8 @@ class VisADataset(torch.utils.data.Dataset):
                               The remainder goes to VAL and TEST as "good" samples.
                               Default 1.0 → all normal images in TRAIN,
                               TEST contains only anomalous images.
+            log_dir         : If provided, discarded-image entries are appended to
+                              <log_dir>/skipped_images.log in addition to stdout.
         """
         super().__init__()
         self.source          = source
@@ -112,6 +116,11 @@ class VisADataset(torch.utils.data.Dataset):
         self.train_val_split = train_val_split
 
         self.classnames_to_use = [classname] if classname is not None else _CLASSNAMES
+
+        # Stored for crop-aware filtering in _load_from_csv
+        self._resize     = resize
+        self._imagesize  = imagesize
+        self._log_path   = os.path.join(log_dir, "skipped_images.log") if log_dir else None
 
         self.imgpaths_per_class, self.data_to_iterate = self._load_from_csv()
 
@@ -152,6 +161,7 @@ class VisADataset(torch.utils.data.Dataset):
         if self.split == DatasetSplit.TEST and mask_path is not None:
             mask = PIL.Image.open(mask_path).convert("L")
             mask = self.transform_mask(mask)
+            mask = (mask > 0).float()  # VisA masks use 0/1 values, not 0/255
         else:
             mask = torch.zeros([1, *image.shape[1:]])
 
@@ -220,6 +230,21 @@ class VisADataset(torch.utils.data.Dataset):
 
                 imgpaths_per_class[classname][anomaly_key].append(abs_img)
 
+                # For anomalous TEST images: discard if any anomaly pixel
+                # falls outside the CenterCrop region (model never sees it).
+                if (self.split == DatasetSplit.TEST
+                        and anomaly_key == "anomaly"
+                        and abs_mask is not None
+                        and not self._anomaly_in_crop(abs_mask)):
+                    img_name = os.path.basename(row["image"].strip())
+                    msg = f"[DISCARD] {classname}/{img_name} — anomaly pixel outside crop"
+                    print(msg)
+                    if self._log_path:
+                        os.makedirs(os.path.dirname(self._log_path), exist_ok=True)
+                        with open(self._log_path, "a") as lf:
+                            lf.write(msg + "\n")
+                    continue
+
                 # Masks are only attached for anomalous images in the test split
                 mask_to_store = (
                     abs_mask
@@ -230,6 +255,32 @@ class VisADataset(torch.utils.data.Dataset):
                 data_to_iterate.append([classname, anomaly_key, abs_img, mask_to_store])
 
         return imgpaths_per_class, data_to_iterate
+
+    def _anomaly_in_crop(self, mask_path):
+        """
+        Returns True only if every non-zero pixel in the mask falls inside
+        the CenterCrop region (i.e. the model actually sees the anomaly).
+
+        Geometry: Resize(resize) scales the shorter edge to `resize` px,
+        then CenterCrop(imagesize) takes a square from the centre.
+        """
+        mask = PIL.Image.open(mask_path).convert("L")
+        w, h = mask.size          # PIL: (width, height)
+        arr  = np.array(mask)     # shape (h, w), row=y, col=x
+
+        ys, xs = np.nonzero(arr)
+        if len(ys) == 0:
+            return True           # mask empty → nothing to discard
+
+        scale    = self._resize / min(w, h)
+        sw, sh   = w * scale, h * scale
+        x0 = (sw - self._imagesize) / (2 * scale)
+        y0 = (sh - self._imagesize) / (2 * scale)
+        x1 = x0 + self._imagesize / scale
+        y1 = y0 + self._imagesize / scale
+
+        return (xs.min() >= x0 and xs.max() < x1 and
+                ys.min() >= y0 and ys.max() < y1)
 
     def _select_rows(self, normal_rows, anomaly_rows):
         """

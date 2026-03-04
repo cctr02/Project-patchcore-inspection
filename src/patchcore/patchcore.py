@@ -37,7 +37,6 @@ class PatchCore(torch.nn.Module):
         nn_method=patchcore.common.FaissNN(False, 4),
         **kwargs,
     ):
-        self.backbone = backbone.to(device)
         self.layers_to_extract_from = layers_to_extract_from
         self.input_shape = input_shape
 
@@ -46,9 +45,32 @@ class PatchCore(torch.nn.Module):
 
         self.forward_modules = torch.nn.ModuleDict({})
 
-        feature_aggregator = patchcore.common.NetworkFeatureAggregator(
-            self.backbone, self.layers_to_extract_from, self.device
-        )
+        # Route to the right feature aggregator based on backbone type:
+        #   • DINOv2  (backbone.dino_timm_name set) → DINOv2Aggregator + CosineNN
+        #   • ConvNeXt V2 (backbone.timm_name set)  → FeaturesOnlyAggregator + CosineNN
+        #   • Everything else (WideResNet, ResNet…)  → NetworkFeatureAggregator + FaissNN
+        timm_name = getattr(backbone, "timm_name", None)
+        dino_timm_name = getattr(backbone, "dino_timm_name", None)
+
+        if dino_timm_name is not None:
+            self.backbone = backbone  # SimpleNamespace — holds .name and .seed only
+            feature_aggregator = patchcore.common.DINOv2Aggregator(
+                dino_timm_name, self.layers_to_extract_from, self.device
+            )
+        elif timm_name is not None:
+            self.backbone = backbone  # SimpleNamespace — holds .name and .seed only
+            feature_aggregator = patchcore.common.FeaturesOnlyAggregator(
+                timm_name, self.layers_to_extract_from, self.device
+            )
+        else:
+            self.backbone = backbone.to(device)
+            feature_aggregator = patchcore.common.NetworkFeatureAggregator(
+                self.backbone, self.layers_to_extract_from, self.device
+            )
+        self._timm_name = timm_name          # persisted in save_to_path
+        self._dino_timm_name = dino_timm_name  # persisted in save_to_path
+        self._use_cosine_nn = isinstance(nn_method, patchcore.common.CosineNN)
+
         feature_dimensions = feature_aggregator.feature_dimensions(input_shape)
         self.forward_modules["feature_aggregator"] = feature_aggregator
 
@@ -249,6 +271,10 @@ class PatchCore(torch.nn.Module):
             "patchsize": self.patch_maker.patchsize,
             "patchstride": self.patch_maker.stride,
             "anomaly_scorer_num_nn": self.anomaly_scorer.n_nearest_neighbours,
+            # Backbone-type flags (absent in older saved models → defaults to False/None)
+            "nn_normalize": self._use_cosine_nn,
+            "timm_name": self._timm_name,
+            "dino_timm_name": self._dino_timm_name,
         }
         with open(self._params_file(save_path, prepend), "wb") as save_file:
             pickle.dump(patchcore_params, save_file, pickle.HIGHEST_PROTOCOL)
@@ -263,13 +289,29 @@ class PatchCore(torch.nn.Module):
         LOGGER.info("Loading and initializing PatchCore.")
         with open(self._params_file(load_path, prepend), "rb") as load_file:
             patchcore_params = pickle.load(load_file)
-        patchcore_params["backbone"] = patchcore.backbones.load(
-            patchcore_params["backbone.name"]
-        )
-        patchcore_params["backbone"].name = patchcore_params["backbone.name"]
-        del patchcore_params["backbone.name"]
-        self.load(**patchcore_params, device=device, nn_method=nn_method)
 
+        # Restore backbone-type flags (absent in older saved models → safe defaults)
+        nn_normalize = patchcore_params.pop("nn_normalize", False)
+        timm_name = patchcore_params.pop("timm_name", None)
+        dino_timm_name = patchcore_params.pop("dino_timm_name", None)
+
+        if nn_normalize:
+            nn_method = patchcore.common.CosineNN(
+                on_gpu=getattr(nn_method, "on_gpu", False),
+                num_workers=getattr(nn_method, "num_workers", 4),
+            )
+
+        backbone_obj = patchcore.backbones.load(patchcore_params["backbone.name"])
+        backbone_obj.name = patchcore_params["backbone.name"]
+        if dino_timm_name is not None:
+            backbone_obj.dino_timm_name = dino_timm_name
+        elif timm_name is not None:
+            backbone_obj.timm_name = timm_name
+        del patchcore_params["backbone.name"]
+
+        self.load(
+            **patchcore_params, backbone=backbone_obj, device=device, nn_method=nn_method
+        )
         self.anomaly_scorer.load(load_path, prepend)
 
 

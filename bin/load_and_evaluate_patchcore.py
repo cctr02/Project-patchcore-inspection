@@ -14,9 +14,15 @@ import patchcore.patchcore
 import patchcore.sampler
 import patchcore.utils
 
+# Make contribution/ importable regardless of the launch directory
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
 LOGGER = logging.getLogger(__name__)
 
-_DATASETS = {"mvtec": ["patchcore.datasets.mvtec", "MVTecDataset"]}
+_DATASETS = {
+    "mvtec": ["patchcore.datasets.mvtec", "MVTecDataset"],
+    "visa":  ["contribution.visa", "VisADataset"],
+}
 
 
 @click.group(chain=True)
@@ -132,7 +138,8 @@ def run(methods, results_path, gpu, seed, save_segmentation_images):
                     ).astype(np.uint8)
 
                 def mask_transform(mask):
-                    return dataloaders["testing"].dataset.transform_mask(mask).numpy()
+                    t = dataloaders["testing"].dataset.transform_mask(mask)
+                    return (t > 0).float().numpy()  # binarize: handles 0/255 (MVTec) and 0/1 (VisA)
 
                 patchcore.utils.plot_segmentation_images(
                     results_path,
@@ -243,9 +250,11 @@ def patch_core_loader(patch_core_paths, faiss_on_gpu, faiss_num_workers):
 @click.option("--num_workers", default=8, type=int, show_default=True)
 @click.option("--resize", default=256, type=int, show_default=True)
 @click.option("--imagesize", default=224, type=int, show_default=True)
+@click.option("--train_val_split", default=1.0, type=float, show_default=True)
 @click.option("--augment", is_flag=True)
 def dataset(
-    name, data_path, subdatasets, batch_size, resize, imagesize, num_workers, augment
+    name, data_path, subdatasets, batch_size, resize, imagesize,
+    train_val_split, num_workers, augment
 ):
     dataset_info = _DATASETS[name]
     dataset_library = __import__(dataset_info[0], fromlist=[dataset_info[1]])
@@ -258,6 +267,7 @@ def dataset(
                 resize=resize,
                 imagesize=imagesize,
                 split=dataset_library.DatasetSplit.TEST,
+                train_val_split=train_val_split,
                 seed=seed,
             )
 

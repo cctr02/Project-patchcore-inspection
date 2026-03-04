@@ -86,6 +86,10 @@ class MVTecDataset(torch.utils.data.Dataset):
         ]
         self.transform_mask = transforms.Compose(self.transform_mask)
 
+        # Exposed for run_patchcore.py (save_segmentation_images block)
+        self.transform_mean = IMAGENET_MEAN
+        self.transform_std  = IMAGENET_STD
+
         self.imagesize = (3, imagesize, imagesize)
 
     def __getitem__(self, idx):

@@ -2,6 +2,7 @@ import contextlib
 import logging
 import os
 import sys
+import types
 
 import click
 import numpy as np
@@ -17,7 +18,8 @@ import patchcore.utils
 # Make contribution/ importable regardless of the launch directory
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import contribution.backbones_extension  # noqa: registers ConvNeXt V2 FCMAE backbones
+import contribution.backbones_extension  # noqa: registers ConvNeXt V2 and DINOv2 backbones
+from contribution.backbones_extension import _CONVNEXTV2_TIMM_NAMES, _DINOV2_TIMM_NAMES
 
 LOGGER = logging.getLogger(__name__)
 
@@ -56,7 +58,7 @@ def run(
         results_path, log_project, log_group, mode="iterate"
     )
 
-    list_of_dataloaders = methods["get_dataloaders"](seed)
+    list_of_dataloaders = methods["get_dataloaders"](seed, log_dir=run_save_path)
 
     device = patchcore.utils.set_torch_device(gpu)
     # Device context here is specifically set and used later
@@ -180,7 +182,8 @@ def run(
                     ).astype(np.uint8)
 
                 def mask_transform(mask):
-                    return dataloaders["testing"].dataset.transform_mask(mask).numpy()
+                    t = dataloaders["testing"].dataset.transform_mask(mask)
+                    return (t > 0).float().numpy()  # binarize: handles 0/255 (MVTec) and 0/1 (VisA)
 
                 image_save_path = os.path.join(
                     run_save_path, "segmentation_images", dataset_name
@@ -301,10 +304,35 @@ def patch_core(
                 backbone_name, backbone_seed = backbone_name.split(".seed-")[0], int(
                     backbone_name.split("-")[-1]
                 )
-            backbone = patchcore.backbones.load(backbone_name)
-            backbone.name, backbone.seed = backbone_name, backbone_seed
 
-            nn_method = patchcore.common.FaissNN(faiss_on_gpu, faiss_num_workers)
+            dino_timm_name = _DINOV2_TIMM_NAMES.get(backbone_name)
+            timm_name = _CONVNEXTV2_TIMM_NAMES.get(backbone_name)
+
+            if dino_timm_name is not None:
+                # DINOv2: DINOv2Aggregator loads the model internally via timm.
+                # CosineNN is mandatory: LayerNorm leads to variable feature norms.
+                backbone = types.SimpleNamespace(
+                    name=backbone_name, seed=backbone_seed, dino_timm_name=dino_timm_name
+                )
+                nn_method = patchcore.common.CosineNN(faiss_on_gpu, faiss_num_workers)
+                LOGGER.info(
+                    "DINOv2 backbone '%s': using DINOv2Aggregator + CosineNN.",
+                    backbone_name,
+                )
+            elif timm_name is not None:
+                # ConvNeXt V2: FeaturesOnlyAggregator loads the model internally.
+                backbone = types.SimpleNamespace(
+                    name=backbone_name, seed=backbone_seed, timm_name=timm_name
+                )
+                nn_method = patchcore.common.CosineNN(faiss_on_gpu, faiss_num_workers)
+                LOGGER.info(
+                    "ConvNeXt backbone '%s': using FeaturesOnlyAggregator + CosineNN.",
+                    backbone_name,
+                )
+            else:
+                backbone = patchcore.backbones.load(backbone_name)
+                backbone.name, backbone.seed = backbone_name, backbone_seed
+                nn_method = patchcore.common.FaissNN(faiss_on_gpu, faiss_num_workers)
 
             patchcore_instance = patchcore.patchcore.PatchCore(device)
             patchcore_instance.load(
@@ -364,7 +392,7 @@ def dataset(
     dataset_info = _DATASETS[name]
     dataset_library = __import__(dataset_info[0], fromlist=[dataset_info[1]])
 
-    def get_dataloaders(seed):
+    def get_dataloaders(seed, log_dir=None):
         dataloaders = []
         for subdataset in subdatasets:
             train_dataset = dataset_library.__dict__[dataset_info[1]](
@@ -386,6 +414,7 @@ def dataset(
                 imagesize=imagesize,
                 split=dataset_library.DatasetSplit.TEST,
                 seed=seed,
+                log_dir=log_dir,
             )
 
             train_dataloader = torch.utils.data.DataLoader(
