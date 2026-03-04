@@ -14,8 +14,10 @@ import patchcore.patchcore
 import patchcore.sampler
 import patchcore.utils
 
-# Rend le dossier contribution/ importable quel que soit le répertoire de lancement
+# Make contribution/ importable regardless of the launch directory
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+import contribution.backbones_extension  # noqa: registers ConvNeXt V2 FCMAE backbones
 
 LOGGER = logging.getLogger(__name__)
 
@@ -101,6 +103,21 @@ def run(
                 )
                 torch.cuda.empty_cache()
                 PatchCore.fit(dataloaders["training"])
+
+            # Save memory bank right after training, before metrics computation,
+            # so the model is not lost if evaluation crashes.
+            if save_patchcore_model:
+                patchcore_save_path = os.path.join(
+                    run_save_path, "models", dataset_name
+                )
+                os.makedirs(patchcore_save_path, exist_ok=True)
+                for i, PatchCore in enumerate(PatchCore_list):
+                    prepend = (
+                        "Ensemble-{}-{}_".format(i + 1, len(PatchCore_list))
+                        if len(PatchCore_list) > 1
+                        else ""
+                    )
+                    PatchCore.save_to_path(patchcore_save_path, prepend)
 
             torch.cuda.empty_cache()
             aggregator = {"scores": [], "segmentations": []}
@@ -214,20 +231,7 @@ def run(
                 if key != "dataset_name":
                     LOGGER.info("{0}: {1:3.3f}".format(key, item))
 
-            # (Optional) Store PatchCore model for later re-use.
-            # SAVE all patchcores only if mean_threshold is passed?
-            if save_patchcore_model:
-                patchcore_save_path = os.path.join(
-                    run_save_path, "models", dataset_name
-                )
-                os.makedirs(patchcore_save_path, exist_ok=True)
-                for i, PatchCore in enumerate(PatchCore_list):
-                    prepend = (
-                        "Ensemble-{}-{}_".format(i + 1, len(PatchCore_list))
-                        if len(PatchCore_list) > 1
-                        else ""
-                    )
-                    PatchCore.save_to_path(patchcore_save_path, prepend)
+            # Model already saved above (before metrics), nothing to do here.
 
         LOGGER.info("\n\n-----\n")
 
@@ -378,6 +382,7 @@ def dataset(
                 data_path,
                 classname=subdataset,
                 resize=resize,
+                train_val_split=train_val_split,
                 imagesize=imagesize,
                 split=dataset_library.DatasetSplit.TEST,
                 seed=seed,
