@@ -174,17 +174,17 @@ python bin/run_patchcore.py `
     $dataset_visa_flags `
     visa $datapath_visa
 
-##### ViT-B @448 3 layers (3,7,11)
+##### ViT-B @448 2 layers
 python bin/run_patchcore.py `
   --gpu 0 --seed 0 --save_patchcore_model `
   --save_segmentation_images `
-  --log_group IM448_DINOv2B14reg_L3-11_P01_D768-768_PS-1_AN-3_S0 `
+  --log_group IM448_DINOv2B14reg_L11_P01_D768-768_PS-1_AN-5_S0 `
   --log_project VisA_Results `
   results `
   patch_core `
-    -b dinov2_vitb14_reg -le blocks.3 -le blocks.7 -le blocks.11 `
+    -b dinov2_vitb14_reg -le blocks.11 `
     --pretrain_embed_dimension 768 --target_embed_dimension 768 `
-    --anomaly_scorer_num_nn 3 --patchsize 1 `
+    --anomaly_scorer_num_nn 5 --patchsize 1 `
     --faiss_num_workers 4 `
   sampler -p 0.1 approx_greedy_coreset `
   dataset `
@@ -195,7 +195,7 @@ python bin/run_patchcore.py `
 ## sweep
 
 # All settings are in contribution/sweep_configs/{study_name}.yaml
-python contribution/sweep.py --study_name ConvNeXtV2B_FCMAE_Pilot
+python contribution/sweep.py --study_name DINOv2B_VisA_Pilot --all_classes
 
 # Custom config path
 python contribution/sweep.py --study_name MySweep --config path/to/config.yaml

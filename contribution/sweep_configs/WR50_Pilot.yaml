@@ -51,7 +51,7 @@ search_space:
     type: categorical
     choices: [3, 5]
 
-  coreset_pct:
+  coreset_fraction:   # fraction kept (0.1 = 10%); P{int*100} in trial name
     type: float_log
     low: 0.01
     high: 0.25

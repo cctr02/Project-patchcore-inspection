@@ -90,15 +90,15 @@ def _load_config(study_name: str, config_path: Optional[str]) -> dict:
 
 def _trial_name(params: dict, cfg: dict) -> str:
     """
-    IM{imagesize}_{backbone_short}_{layer_key}_P{pct:02d}_D{pre}-{tgt}_PS-{ps}_AN-{nn}_S{seed}
-    Example: IM224_ConvNeXtV2B_FCMAE_L1-2_P01_D1024-1024_PS-3_AN-1_S0
+    IM{imagesize}_{backbone_short}_{layer_key}_P{pct:03d}_D{pre}-{tgt}_PS-{ps}_AN-{nn}_S{seed}
+    Example: IM224_ConvNeXtV2B_FCMAE_L1-2_P001_D1024-1024_PS-3_AN-1_S0
     """
-    pct_int = max(1, int(round(params["coreset_pct"] * 100)))
+    pct_int = max(1, int(round(params["coreset_fraction"] * 100)))
     return (
         f"IM{params['imagesize']}"
         f"_{cfg['backbone_short']}"
         f"_{params['layer_key']}"
-        f"_P{pct_int:02d}"
+        f"_P{pct_int:03d}"
         f"_D{params['pretrain_embed_dimension']}-{params['target_embed_dimension']}"
         f"_PS-{params['patchsize']}"
         f"_AN-{params['anomaly_scorer_num_nn']}"
@@ -113,20 +113,30 @@ def _sample_params(trial: optuna.Trial, cfg: dict) -> dict:
     """
     Reads cfg["search_space"] and calls the appropriate trial.suggest_* methods.
 
-    Special keys in search_space:
-      resize_imagesize_pairs : list of [resize, imagesize] pairs (for DINOv2,
-                               where imagesize must be a multiple of 14). Suggested
-                               as a categorical; takes priority over resize/imagesize_offset.
-      resize          : categorical choices; imagesize derived as resize - imagesize_offset.
-      imagesize_offset: fixed int offset (default 32), NOT suggested by Optuna.
-      layer_combos    : dict {key: [layer, ...]}; key is suggested categorically.
+    Special keys handled separately (not dispatched generically):
+
+      resize_imagesize_pairs : list of [resize, imagesize] pairs; suggested as a
+                               categorical.  Use for DINOv2 (imagesize must be a
+                               multiple of 14).  Takes priority over resize/offset.
+      resize                 : categorical choices; imagesize = resize - imagesize_offset.
+      imagesize_offset       : fixed int (default 32); NOT suggested by Optuna.
+
+      layer_combos           : dict {key: [layers]}; key suggested as categorical.
+                               TPE treats the combo as a single opaque token.
+
+      layer_sampling         : dynamic mode — each candidate block gets its own
+                               float score; TPE can learn "block N is useful"
+                               independently and bias future combos accordingly.
+                               Fields:
+                                 candidates   : list of block indices, e.g. [3..11]
+                                 n_layers     : list of allowed combo sizes, e.g. [2, 3]
+                                 layer_prefix : str, e.g. "blocks" or "stages"
     """
     ss = cfg["search_space"]
     params: dict = {}
 
     # ── resize + imagesize ─────────────────────────────────────────────────────
     if "resize_imagesize_pairs" in ss:
-        # Explicit pairs — needed for DINOv2 (imagesize must be a multiple of 14).
         pairs = ss["resize_imagesize_pairs"]
         pair_keys = ["{}x{}".format(r, i) for r, i in pairs]
         chosen = trial.suggest_categorical("resize_imagesize", pair_keys)
@@ -134,20 +144,53 @@ def _sample_params(trial: optuna.Trial, cfg: dict) -> dict:
         params["resize"]    = pairs[idx][0]
         params["imagesize"] = pairs[idx][1]
     else:
-        resize_spec = ss["resize"]
-        resize = trial.suggest_categorical("resize", resize_spec["choices"])
+        resize = trial.suggest_categorical("resize", ss["resize"]["choices"])
         offset = ss.get("imagesize_offset", 32)
         params["resize"]    = resize
         params["imagesize"] = resize - offset
 
-    # ── layer_combos (categorical over keys) ───────────────────────────────────
-    layer_combos = ss["layer_combos"]
-    layer_key = trial.suggest_categorical("layer_key", list(layer_combos.keys()))
-    params["layer_key"]             = layer_key
-    params["layers_to_extract_from"] = layer_combos[layer_key]
+    # ── layer selection ────────────────────────────────────────────────────────
+    if "layer_sampling" in ss:
+        # Dynamic mode: TPE assigns a score to each candidate block independently.
+        # High-scoring blocks are selected more often → TPE learns "block N matters".
+        ls         = ss["layer_sampling"]
+        candidates = ls["candidates"]           # e.g. [3, 4, 5, 6, 7, 8, 9, 10, 11]
+        n_choices  = ls["n_layers"]             # e.g. [2, 3]
+        prefix     = ls.get("layer_prefix", "blocks")
+
+        n_layers = trial.suggest_categorical("n_layers", n_choices)
+
+        # Each candidate block gets its own continuous score in [0, 1].
+        # TPE will learn to push scores high for blocks that improve AUROC.
+        scores = {
+            b: trial.suggest_float("block_score_{}".format(b), 0.0, 1.0)
+            for b in candidates
+        }
+        # Select the n_layers blocks with the highest scores, sort ascending.
+        selected = sorted(candidates, key=lambda b: -scores[b])[:n_layers]
+        selected.sort()
+
+        params["layer_key"]              = "L" + "-".join(str(b) for b in selected)
+        params["layers_to_extract_from"] = ["{}.{}".format(prefix, b) for b in selected]
+
+    elif "layer_combos" in ss:
+        # Fixed mode: combo is a single opaque categorical.
+        # Faster convergence when the good combos are known in advance.
+        layer_combos = ss["layer_combos"]
+        layer_key    = trial.suggest_categorical("layer_key", list(layer_combos.keys()))
+        params["layer_key"]              = layer_key
+        params["layers_to_extract_from"] = layer_combos[layer_key]
+
+    else:
+        raise ValueError(
+            "search_space must contain either 'layer_sampling' or 'layer_combos'."
+        )
 
     # ── all other search-space params (generic dispatch) ───────────────────────
-    _skip = {"resize", "layer_combos", "imagesize_offset", "resize_imagesize_pairs"}
+    _skip = {
+        "resize", "imagesize_offset", "resize_imagesize_pairs",
+        "layer_combos", "layer_sampling",
+    }
     for name, spec in ss.items():
         if name in _skip:
             continue
@@ -161,7 +204,9 @@ def _sample_params(trial: optuna.Trial, cfg: dict) -> dict:
         elif t == "int":
             params[name] = trial.suggest_int(name, spec["low"], spec["high"])
         else:
-            raise ValueError(f"Unknown search_space type '{t}' for param '{name}'")
+            raise ValueError(
+                "Unknown search_space type '{}' for param '{}'".format(t, name)
+            )
 
     return params
 
@@ -286,12 +331,12 @@ def _run_one_class(
     backbone, nn_method = _make_backbone_and_nn(cfg)
 
     # ── Coreset sampler ───────────────────────────────────────────────────────
-    coreset_pct = params["coreset_pct"]
-    if coreset_pct >= 1.0:
+    coreset_fraction = params["coreset_fraction"]
+    if coreset_fraction >= 1.0:
         sampler = patchcore.sampler.IdentitySampler()
     else:
         sampler = patchcore.sampler.ApproximateGreedyCoresetSampler(
-            percentage=coreset_pct, device=device
+            percentage=coreset_fraction, device=device
         )
 
     # ── Build + train PatchCore ───────────────────────────────────────────────
@@ -332,19 +377,22 @@ def _run_one_class(
 # ──────────────────────────────────────────────────────────────────────────────
 
 def _make_objective(cfg: dict, sweep_dir: str, device: torch.device):
-    pilot_classes = cfg["pilot_classes"]
+    classes = cfg["classes"]
 
     def objective(trial: optuna.Trial) -> float:
         params = _sample_params(trial, cfg)
 
         # Add fixed metadata needed by trial_name / YAML
-        params["backbone"]      = cfg["backbone"]
-        params["pilot_classes"] = pilot_classes
-        params["seed"]          = cfg["seed"]
+        params["backbone"] = cfg["backbone"]
+        params["classes"]  = classes
+        params["seed"]     = cfg["seed"]
 
         trial_name = _trial_name(params, cfg)
         trial_dir  = os.path.join(sweep_dir, trial_name)
         os.makedirs(trial_dir, exist_ok=True)
+
+        # Persist trial_name so best_trial.yaml can retrieve it without reconstruction.
+        trial.set_user_attr("trial_name", trial_name)
 
         # Save config immediately (survives crashes)
         with open(os.path.join(trial_dir, "config.yaml"), "w") as f:
@@ -352,12 +400,12 @@ def _make_objective(cfg: dict, sweep_dir: str, device: torch.device):
 
         LOGGER.info(
             "[Trial %d] %s  coreset=%.4f",
-            trial.number, trial_name, params["coreset_pct"],
+            trial.number, trial_name, params["coreset_fraction"],
         )
 
-        # ── Run on each pilot class ───────────────────────────────────────────
+        # ── Run on each class ────────────────────────────────────────────────
         class_aurocs = {}
-        for cls in pilot_classes:
+        for cls in classes:
             LOGGER.info("  -> %s", cls)
             try:
                 auroc = _run_one_class(cls, params, cfg, device)
@@ -390,6 +438,30 @@ def _make_objective(cfg: dict, sweep_dir: str, device: torch.device):
 # CLI
 # ──────────────────────────────────────────────────────────────────────────────
 
+def _discover_classes(data_path: str, dataset: str) -> list:
+    """
+    Return sorted list of class names from data_path, filtered by dataset structure.
+
+    VisA  : keep dirs that contain image_anno.csv  (excludes split_csv/ etc.)
+    MVTec : keep dirs that contain a train/ subdir
+    """
+    def _is_class_dir(name: str) -> bool:
+        d = os.path.join(data_path, name)
+        if not os.path.isdir(d):
+            return False
+        if dataset == "visa":
+            return os.path.isfile(os.path.join(d, "image_anno.csv"))
+        else:  # mvtec and others
+            return os.path.isdir(os.path.join(d, "train"))
+
+    entries = sorted(e for e in os.listdir(data_path) if _is_class_dir(e))
+    if not entries:
+        raise RuntimeError(
+            f"No class directories found in {data_path} for dataset='{dataset}'."
+        )
+    return entries
+
+
 @click.command()
 @click.option(
     "--study_name", required=True, type=str,
@@ -399,7 +471,11 @@ def _make_objective(cfg: dict, sweep_dir: str, device: torch.device):
     "--config", default=None, type=click.Path(exists=True),
     help="Override config file path (default: contribution/sweep_configs/{study_name}.yaml).",
 )
-def main(study_name: str, config: Optional[str]):
+@click.option(
+    "--all_classes", is_flag=True, default=False,
+    help="Run on all classes found in data_path instead of pilot_classes.",
+)
+def main(study_name: str, config: Optional[str], all_classes: bool):
     """Bayesian hyperparameter sweep for PatchCore (reads all settings from YAML)."""
 
     logging.basicConfig(
@@ -414,11 +490,21 @@ def main(study_name: str, config: Optional[str]):
 
     # Fields that must be present
     required = ["data_path", "dataset", "backbone", "backbone_short",
-                "pilot_classes", "search_space", "seed", "n_trials",
-                "batch_size", "num_workers"]
+                "search_space", "seed", "n_trials", "batch_size", "num_workers"]
     for key in required:
         if key not in cfg:
             raise KeyError(f"Missing required key in sweep config: '{key}'")
+
+    # ── Resolve class list ────────────────────────────────────────────────────
+    # --all_classes overrides pilot_classes; otherwise pilot_classes restricts
+    # to a subset; if neither is set, discover all classes automatically.
+    if all_classes or "pilot_classes" not in cfg:
+        cfg["classes"] = _discover_classes(cfg["data_path"], cfg["dataset"])
+        if all_classes:
+            LOGGER.info("--all_classes: using all %d classes from %s",
+                        len(cfg["classes"]), cfg["data_path"])
+    else:
+        cfg["classes"] = cfg["pilot_classes"]
 
     seed        = cfg["seed"]
     n_trials    = cfg["n_trials"]
@@ -435,8 +521,18 @@ def main(study_name: str, config: Optional[str]):
     LOGGER.info("Config      : %s", config or os.path.join(_CONFIGS_DIR, f"{study_name}.yaml"))
     LOGGER.info("Backbone    : %s  (%s)", cfg["backbone"], cfg["backbone_short"])
     LOGGER.info("Dataset     : %s  (%s)", cfg["dataset"], cfg["data_path"])
-    LOGGER.info("Pilot cls   : %s", cfg["pilot_classes"])
-    LOGGER.info("Layer combos: %s", list(cfg["search_space"]["layer_combos"].keys()))
+    LOGGER.info("Classes (%d): %s",
+                len(cfg["classes"]),
+                cfg["classes"] if len(cfg["classes"]) <= 6 else cfg["classes"][:6] + ["..."])
+    ss = cfg["search_space"]
+    if "layer_sampling" in ss:
+        ls = ss["layer_sampling"]
+        LOGGER.info(
+            "Layer mode  : dynamic  candidates=%s  n_layers=%s  prefix=%s",
+            ls["candidates"], ls["n_layers"], ls.get("layer_prefix", "blocks"),
+        )
+    else:
+        LOGGER.info("Layer combos: %s", list(ss["layer_combos"].keys()))
     LOGGER.info("n_trials    : %d", n_trials)
     LOGGER.info("Sweep dir   : %s", os.path.abspath(sweep_dir))
 
@@ -487,23 +583,16 @@ def main(study_name: str, config: Optional[str]):
     LOGGER.info("Mean AUROC  : %.4f", best.value)
     LOGGER.info("Params      : %s", best.params)
 
-    # Reconstruct full params for the best trial name
-    best_params = dict(best.params)
-    best_params["imagesize"] = best_params["resize"] - cfg["search_space"].get("imagesize_offset", 32)
-    best_params["layers_to_extract_from"] = cfg["search_space"]["layer_combos"][best_params["layer_key"]]
-    # fill missing keys that _trial_name needs (sampled but not in best.params dict)
-    for k in ("pretrain_embed_dimension", "target_embed_dimension",
-               "patchsize", "coreset_pct", "anomaly_scorer_num_nn"):
-        if k not in best_params:
-            best_params[k] = best.params.get(k)
+    # trial_name was stored as a user_attr inside the objective.
+    best_trial_name = best.user_attrs.get("trial_name", "(see best_params)")
 
     summary = {
         "study_name":          study_name,
         "n_completed_trials":  len(completed),
         "best_trial_number":   best.number,
         "best_mean_auroc":     best.value,
+        "best_trial_name":     best_trial_name,
         "best_params":         dict(best.params),
-        "best_trial_name":     _trial_name(best_params, cfg),
     }
     summary_path = os.path.join(sweep_dir, "best_trial.yaml")
     with open(summary_path, "w") as f:

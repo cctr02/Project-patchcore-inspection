@@ -5,7 +5,7 @@ results_root: results
 # ─── Hardware / runtime ───────────────────────────────────────────────────────
 gpu: 0
 seed: 0
-n_trials: 50
+n_trials: 20
 batch_size: 4
 num_workers: 0
 faiss_on_gpu: false
@@ -14,7 +14,7 @@ faiss_num_workers: 4
 # ─── Dataset ──────────────────────────────────────────────────────────────────
 dataset: visa
 data_path: C:\Users\trloj\Code\VisA_20220922
-train_val_split: 1.0
+
 
 pilot_classes:
   - candle
@@ -38,10 +38,13 @@ search_space:
   resize_imagesize_pairs:
     - [512, 448]
 
-  layer_combos:
-    L5-11: [blocks.5, blocks.11]    
-    L3-11: [blocks.3, blocks.11]  
-    L3-7-11: [blocks.3, blocks.7, blocks.11]    
+  # Dynamic layer selection — TPE assigns a continuous score to each candidate
+  # block; high-scoring blocks appear more often in future trials.
+  # If block 11 always boosts AUROC, TPE raises block_score_11 automatically.
+  layer_sampling:
+    candidates: [3, 4, 5, 6, 7, 8, 9, 10, 11]   # skip very early blocks (0-2)
+    n_layers: [2, 3, 4]                              # try 2-block and 3-block combos
+    layer_prefix: blocks
 
   pretrain_embed_dimension:
     type: categorical
@@ -49,17 +52,17 @@ search_space:
 
   target_embed_dimension:
     type: categorical
-    choices: [384, 768]
+    choices: [768]
 
   patchsize:
     type: categorical
-    choices: [1, 3]                 # 1 is standard; 3 adds neighbourhood context
+    choices: [1,3]     
 
-  coreset_pct:
+  coreset_fraction:   # fraction kept (0.1 = 10%); P{int*100} in trial name
     type: float_log
     low: 0.01
-    high: 0.25
+    high: 0.1
 
   anomaly_scorer_num_nn:
     type: categorical
-    choices: [1, 3, 5]
+    choices: [3,5]
