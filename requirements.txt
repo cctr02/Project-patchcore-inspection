@@ -1,13 +1,36 @@
-click>= 8.0.3
-# cudatoolkit>= 10.2
-faiss-cpu
-#faiss-gpu
-matplotlib>= 3.5.0
-pillow>= 8.4.0
-pretrainedmodels>= 0.7.4
-torch>= 1.10.0
-scikit-image>= 0.18.3
-scikit-learn>= 1.0.1
-scipy>= 1.7.1
-torchvision>= 0.11.1
-tqdm>= 4.62.3
+# ── Installed via conda (NOT pip) ─────────────────────────────────────────────
+# python=3.8.20
+# pytorch=1.10.1   (py3.8_cuda11.3_cudnn8_0)  -c pytorch
+# torchvision=0.11.2 (py38_cu113)             -c pytorch
+# torchaudio=0.10.1  (py38_cu113)             -c pytorch
+# cudatoolkit=11.3.1                          -c pytorch -c conda-forge
+# cudnn=8.2.1.32                              (auto-dep)
+# faiss-cpu=1.8.0                             -c conda-forge
+# numpy=1.24.4                                (auto-dep)
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Core
+click==8.1.8
+matplotlib==3.7.5
+pillow==10.4.0
+pretrainedmodels==0.7.4
+scikit-image==0.21.0
+scikit-learn==1.3.2
+scipy==1.10.1
+tqdm==4.67.3
+
+# Deep learning extensions
+timm==0.9.16
+huggingface-hub==0.36.2
+safetensors==0.5.3
+
+# Sweep / hyperparameter search
+optuna==4.5.0
+sqlalchemy==2.0.48
+alembic==1.14.1
+colorlog==6.10.1
+
+# Misc utilities
+pyyaml==6.0.3
+munch==4.0.0
+imageio==2.35.1

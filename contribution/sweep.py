@@ -52,7 +52,7 @@ import patchcore.metrics
 import patchcore.patchcore
 import patchcore.sampler
 import patchcore.utils
-from contribution.backbones_extension import _CONVNEXTV2_TIMM_NAMES
+from contribution.backbones_extension import _CONVNEXTV2_TIMM_NAMES, _DINOV2_TIMM_NAMES
 
 LOGGER = logging.getLogger(__name__)
 
@@ -114,19 +114,31 @@ def _sample_params(trial: optuna.Trial, cfg: dict) -> dict:
     Reads cfg["search_space"] and calls the appropriate trial.suggest_* methods.
 
     Special keys in search_space:
-      resize          : must be categorical; imagesize is derived as resize - imagesize_offset
-      imagesize_offset: fixed int offset (default 32), NOT suggested by Optuna
-      layer_combos    : dict {key: [layer, ...]}; key is suggested categorically
+      resize_imagesize_pairs : list of [resize, imagesize] pairs (for DINOv2,
+                               where imagesize must be a multiple of 14). Suggested
+                               as a categorical; takes priority over resize/imagesize_offset.
+      resize          : categorical choices; imagesize derived as resize - imagesize_offset.
+      imagesize_offset: fixed int offset (default 32), NOT suggested by Optuna.
+      layer_combos    : dict {key: [layer, ...]}; key is suggested categorically.
     """
     ss = cfg["search_space"]
     params: dict = {}
 
-    # ── resize + derived imagesize ─────────────────────────────────────────────
-    resize_spec = ss["resize"]
-    resize = trial.suggest_categorical("resize", resize_spec["choices"])
-    offset = ss.get("imagesize_offset", 32)
-    params["resize"]    = resize
-    params["imagesize"] = resize - offset
+    # ── resize + imagesize ─────────────────────────────────────────────────────
+    if "resize_imagesize_pairs" in ss:
+        # Explicit pairs — needed for DINOv2 (imagesize must be a multiple of 14).
+        pairs = ss["resize_imagesize_pairs"]
+        pair_keys = ["{}x{}".format(r, i) for r, i in pairs]
+        chosen = trial.suggest_categorical("resize_imagesize", pair_keys)
+        idx = pair_keys.index(chosen)
+        params["resize"]    = pairs[idx][0]
+        params["imagesize"] = pairs[idx][1]
+    else:
+        resize_spec = ss["resize"]
+        resize = trial.suggest_categorical("resize", resize_spec["choices"])
+        offset = ss.get("imagesize_offset", 32)
+        params["resize"]    = resize
+        params["imagesize"] = resize - offset
 
     # ── layer_combos (categorical over keys) ───────────────────────────────────
     layer_combos = ss["layer_combos"]
@@ -135,7 +147,7 @@ def _sample_params(trial: optuna.Trial, cfg: dict) -> dict:
     params["layers_to_extract_from"] = layer_combos[layer_key]
 
     # ── all other search-space params (generic dispatch) ───────────────────────
-    _skip = {"resize", "layer_combos", "imagesize_offset"}
+    _skip = {"resize", "layer_combos", "imagesize_offset", "resize_imagesize_pairs"}
     for name, spec in ss.items():
         if name in _skip:
             continue
@@ -204,13 +216,23 @@ def _make_datasets(cfg: dict, classname: str, resize: int, imagesize: int, seed:
 # ──────────────────────────────────────────────────────────────────────────────
 
 def _make_backbone_and_nn(cfg: dict):
-    backbone_name    = cfg["backbone"]
-    faiss_on_gpu     = cfg.get("faiss_on_gpu", False)
+    backbone_name     = cfg["backbone"]
+    faiss_on_gpu      = cfg.get("faiss_on_gpu", False)
     faiss_num_workers = cfg.get("faiss_num_workers", 4)
 
-    timm_name = _CONVNEXTV2_TIMM_NAMES.get(backbone_name)
-    if timm_name is not None:
-        # ConvNeXt V2: use FeaturesOnlyAggregator + CosineNN
+    dino_timm_name = _DINOV2_TIMM_NAMES.get(backbone_name)
+    timm_name      = _CONVNEXTV2_TIMM_NAMES.get(backbone_name)
+
+    if dino_timm_name is not None:
+        # DINOv2: DINOv2Aggregator (patchcore.py detects backbone.dino_timm_name) + CosineNN.
+        backbone  = types.SimpleNamespace(
+            name=backbone_name, seed=None, dino_timm_name=dino_timm_name
+        )
+        nn_method = patchcore.common.CosineNN(
+            on_gpu=faiss_on_gpu, num_workers=faiss_num_workers
+        )
+    elif timm_name is not None:
+        # ConvNeXt V2: FeaturesOnlyAggregator + CosineNN.
         backbone  = types.SimpleNamespace(
             name=backbone_name, seed=None, timm_name=timm_name
         )
@@ -218,7 +240,7 @@ def _make_backbone_and_nn(cfg: dict):
             on_gpu=faiss_on_gpu, num_workers=faiss_num_workers
         )
     else:
-        # Standard backbone (WideResNet, etc.): hook-based + L2 FAISS
+        # Standard backbone (WideResNet, etc.): hook-based aggregator + L2 FAISS.
         backbone = patchcore.backbones.load(backbone_name)
         backbone.name = backbone_name
         backbone.seed = None

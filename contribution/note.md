@@ -1,14 +1,23 @@
 ## setup conda
-conda create -n patchcore38 python=3.8 -y
+# Reproduit exactement l'env patchcore38 (versions figées depuis `conda env export`)
+
+conda create -n patchcore38 python=3.8.20 -y
 conda activate patchcore38
-conda install -y pytorch==1.10.1 torchvision==0.11.2 torchaudio==0.10.1 cudatoolkit=11.3 -c pytorch -c conda-forge
-conda install -y -c conda-forge faiss-cpu
-pip install click matplotlib pillow pretrainedmodels scikit-image scikit-learn scipy tqdm
-pip install black flake8 isort pytest
+
+# PyTorch + CUDA (builds CUDA 11.3 officiels — ordre des channels important)
+conda install -y pytorch==1.10.1 torchvision==0.11.2 torchaudio==0.10.1 cudatoolkit=11.3.1 -c pytorch -c conda-forge
+
+# FAISS (version conda-forge, pas la version pip)
+conda install -y -c conda-forge faiss-cpu=1.8.0
+
+# Toutes les dépendances pip (versions figées)
+pip install -r requirements.txt
+
+# Outils de développement (optionnel)
+pip install -r requirements_dev.txt
 
 ## To initialize on powershell
 $env:PYTHONPATH="src"
-$env:PYTHONPATH=""
 $env:KMP_DUPLICATE_LIB_OK = "TRUE"
 
 $datapath_mvtec = "C:\Users\trloj\Code\mvtec_anomaly_detection"
@@ -30,6 +39,7 @@ foreach ($d in $datasets_visa) {
 }
 
 ## To test datasets 
+### WR50
 #### mvtec
 python bin/run_patchcore.py `
   --gpu 0 --seed 0 --save_patchcore_model --save_segmentation_images `
@@ -67,7 +77,7 @@ python bin/run_patchcore.py `
     visa $datapath_visa
 
 
-### convnext
+### ConvNeXtV2
 #### mvtec
 python bin/run_patchcore.py `
   --gpu 0 --seed 0 --save_patchcore_model `
@@ -91,43 +101,42 @@ python bin/run_patchcore.py `
 #### visa
 python bin/run_patchcore.py `
   --gpu 0 --seed 0 --save_patchcore_model `
-  --log_group IM224_ConvNeXtV2B_FCMAE_L1-2_P01_D1024-1024_PS-3_AN-1_S0 `
+  --log_group IM224_ConvNeXtV2B_FCMAE_L1-2_P01_D768-768_PS-3_AN-1_S0 `
   --log_project VisA_Results `
   results `
   patch_core `
     -b convnextv2_base_fcmae -le stages.1 -le stages.2 `
-    --pretrain_embed_dimension 1024 --target_embed_dimension 1024 `
+    --pretrain_embed_dimension 768 --target_embed_dimension 768 `
     --anomaly_scorer_num_nn 1 --patchsize 3 `
     --faiss_num_workers 4 `
   sampler -p 0.1 approx_greedy_coreset `
   dataset `
-    --resize 256 --imagesize 224 --train_val_split 0.9 `
+    --resize 256 --imagesize 224 `
+    --num_workers 0 `
+    $dataset_visa_flags `
+    visa $datapath_visa
+
+python bin/run_patchcore.py `
+  --gpu 0 --seed 0 --save_patchcore_model `
+  --log_group IM224_ConvNeXtV2B_FCMAE_L1-2-3_P01_D1792-1024_PS-3_AN-1_S0 `
+  --log_project VisA_Results `
+  results `
+  patch_core `
+    -b convnextv2_base_fcmae -le stages.1 -le stages.2 -le stages.3 `
+    --pretrain_embed_dimension 1792 --target_embed_dimension 1024 `
+    --anomaly_scorer_num_nn 1 --patchsize 3 `
+    --faiss_num_workers 4 `
+  sampler -p 0.1 approx_greedy_coreset `
+  dataset `
+    --resize 256 --imagesize 224 `
     --num_workers 0 `
     $dataset_visa_flags `
     visa $datapath_visa
 
 
-### convnext
-#### mvtec
-python bin/run_patchcore.py `
-  --gpu 0 --seed 0 --save_patchcore_model `
-  --save_segmentation_images `
-  --log_group IM448_DINOv2B14reg_L5-11_P01_D768-768_PS-1_AN-3_S0 `
-  --log_project MVTecAD_Results `
-  results `
-  patch_core `
-    -b dinov2_vitb14_reg -le blocks.5 -le blocks.11 `
-    --pretrain_embed_dimension 768 --target_embed_dimension 768 `
-    --anomaly_scorer_num_nn 3 --patchsize 1 `
-    --faiss_num_workers 4 `
-  sampler -p 0.1 approx_greedy_coreset `
-  dataset `
-    --resize 512 --imagesize 448 `
-    --num_workers 0 `
-    $dataset_mvtec_flags `
-    mvtec $datapath_mvtec
-
+### dinov2
 #### visa
+##### B@448
 python bin/run_patchcore.py `
   --gpu 0 --seed 0 --save_patchcore_model `
   --save_segmentation_images `
@@ -146,6 +155,43 @@ python bin/run_patchcore.py `
     $dataset_visa_flags `
     visa $datapath_visa
 
+##### ViT-L @448 3 layers (7,14,23)
+python bin/run_patchcore.py `
+  --gpu 0 --seed 0 --save_patchcore_model `
+  --save_segmentation_images `
+  --log_group IM448_DINOv2L14reg_L7-14-23_P005_D1024-1024_PS-1_AN-3_S0 `
+  --log_project VisA_Results `
+  results `
+  patch_core `
+    -b dinov2_vitl14_reg -le blocks.7 -le blocks.14 -le blocks.23 `
+    --pretrain_embed_dimension 1024 --target_embed_dimension 1024 `
+    --anomaly_scorer_num_nn 3 --patchsize 1 `
+    --faiss_num_workers 4 `
+  sampler -p 0.05 approx_greedy_coreset `
+  dataset `
+    --resize 512 --imagesize 448 `
+    --num_workers 0 `
+    $dataset_visa_flags `
+    visa $datapath_visa
+
+##### ViT-B @448 3 layers (3,7,11)
+python bin/run_patchcore.py `
+  --gpu 0 --seed 0 --save_patchcore_model `
+  --save_segmentation_images `
+  --log_group IM448_DINOv2B14reg_L3-11_P01_D768-768_PS-1_AN-3_S0 `
+  --log_project VisA_Results `
+  results `
+  patch_core `
+    -b dinov2_vitb14_reg -le blocks.3 -le blocks.7 -le blocks.11 `
+    --pretrain_embed_dimension 768 --target_embed_dimension 768 `
+    --anomaly_scorer_num_nn 3 --patchsize 1 `
+    --faiss_num_workers 4 `
+  sampler -p 0.1 approx_greedy_coreset `
+  dataset `
+    --resize 512 --imagesize 448 `
+    --num_workers 0 `
+    $dataset_visa_flags `
+    visa $datapath_visa
 ## sweep
 
 # All settings are in contribution/sweep_configs/{study_name}.yaml
@@ -240,6 +286,8 @@ exemple de problème ici :
 ![alt text](save/capsules_Images_Anomaly_part2_2.png) 
 après modification 94.8% mean auroc : 
 ![alt text](save/results_visa_im224_wr50_l2-3_p01_d1024-1024_ps-3_an-1_s0.csv)
+
+
 
 ### gros changement : 
 ![alt text](save/change1.png)

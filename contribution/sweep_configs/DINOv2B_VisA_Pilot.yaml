@@ -1,0 +1,65 @@
+# ─── Study identity ───────────────────────────────────────────────────────────
+study_name: DINOv2B_VisA_Pilot
+results_root: results
+
+# ─── Hardware / runtime ───────────────────────────────────────────────────────
+gpu: 0
+seed: 0
+n_trials: 50
+batch_size: 4
+num_workers: 0
+faiss_on_gpu: false
+faiss_num_workers: 4
+
+# ─── Dataset ──────────────────────────────────────────────────────────────────
+dataset: visa
+data_path: C:\Users\trloj\Code\VisA_20220922
+train_val_split: 1.0
+
+pilot_classes:
+  - candle
+  - cashew
+  - capsules
+  - pcb1
+
+# ─── Backbone ─────────────────────────────────────────────────────────────────
+# ViT-B/14 with register tokens — 768 channels, 12 blocks (0-11)
+backbone: dinov2_vitb14_reg
+backbone_short: DINOv2B14reg
+
+# ─── Search space ─────────────────────────────────────────────────────────────
+# DINOv2 notes:
+#   - patch_size=14 → imagesize MUST be a multiple of 14
+#   - Use resize_imagesize_pairs (not resize + imagesize_offset)
+#   - patchsize=1 is standard (each token already covers 14×14 px)
+#   - pretrain_embed_dimension should match or be a divisor of 768 (ViT-B)
+search_space:
+
+  resize_imagesize_pairs:
+    - [512, 448]
+
+  layer_combos:
+    L5-11: [blocks.5, blocks.11]    
+    L3-11: [blocks.3, blocks.11]  
+    L3-7-11: [blocks.3, blocks.7, blocks.11]    
+
+  pretrain_embed_dimension:
+    type: categorical
+    choices: [768]           
+
+  target_embed_dimension:
+    type: categorical
+    choices: [384, 768]
+
+  patchsize:
+    type: categorical
+    choices: [1, 3]                 # 1 is standard; 3 adds neighbourhood context
+
+  coreset_pct:
+    type: float_log
+    low: 0.01
+    high: 0.25
+
+  anomaly_scorer_num_nn:
+    type: categorical
+    choices: [1, 3, 5]

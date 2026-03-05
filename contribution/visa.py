@@ -286,19 +286,29 @@ class VisADataset(torch.utils.data.Dataset):
         """
         Returns the subset of rows for the requested split.
 
-        TRAIN : first train_val_split fraction of normal images
-        VAL   : remaining normal images (if train_val_split < 1.0)
-        TEST  : all anomaly images + normal images not used in TRAIN
+        A fixed 20 % of normal images is always reserved for TEST evaluation
+        so that AUROC can be computed regardless of train_val_split.
+
+        TRAIN : first train_val_split fraction of the 80 % train+val pool
+        VAL   : remaining fraction of the 80 % pool  (if train_val_split < 1.0)
+        TEST  : the fixed 20 % normal hold-out  +  all anomaly images
         """
-        n         = len(normal_rows)
-        split_idx = int(n * self.train_val_split)
+        n = len(normal_rows)
+
+        # Fixed 20 % hold-out for TEST (always, irrespective of train_val_split)
+        test_start   = int(n * 0.8)
+        test_normal  = normal_rows[test_start:]
+        trainval     = normal_rows[:test_start]
+
+        # Within the train+val pool, apply train_val_split
+        tv_n      = len(trainval)
+        split_idx = tv_n if self.train_val_split >= 1.0 else int(tv_n * self.train_val_split)
 
         if self.split == DatasetSplit.TRAIN:
-            return normal_rows[:split_idx] if self.train_val_split < 1.0 else normal_rows
+            return trainval[:split_idx]
 
         if self.split == DatasetSplit.VAL:
-            return normal_rows[split_idx:]
+            return trainval[split_idx:]
 
-        # TEST: held-out normal images (as "good") + all anomaly images
-        test_normal = normal_rows[split_idx:] if self.train_val_split < 1.0 else []
+        # TEST: fixed normal hold-out + all anomaly images
         return test_normal + anomaly_rows
