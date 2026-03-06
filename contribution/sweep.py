@@ -376,8 +376,149 @@ def _run_one_class(
 # Optuna objective factory
 # ──────────────────────────────────────────────────────────────────────────────
 
-def _make_objective(cfg: dict, sweep_dir: str, device: torch.device):
-    classes = cfg["classes"]
+def _pruning_stats(study: optuna.Study, step: int) -> dict:
+    """
+    Compute comparison stats between the current trial's intermediate mean and
+    the distribution of completed trials at the same step.
+
+    Returns a dict with keys: median, mean, min, max, n_refs, and their values.
+    """
+    refs = [
+        t.intermediate_values[step]
+        for t in study.trials
+        if t.state == optuna.trial.TrialState.COMPLETE
+        and step in t.intermediate_values
+    ]
+    if not refs:
+        return {"n_refs": 0, "median": float("nan"), "mean": float("nan"),
+                "min": float("nan"), "max": float("nan")}
+    arr = np.array(refs)
+    return {
+        "n_refs": len(refs),
+        "median": float(np.median(arr)),
+        "mean":   float(np.mean(arr)),
+        "min":    float(arr.min()),
+        "max":    float(arr.max()),
+    }
+
+
+def _append_trial_report(
+    report_path: str,
+    study_name: str,
+    trial_number: int,
+    trial_name: str,
+    status: str,                   # "COMPLETE" | "PRUNED" | "FAILED"
+    class_aurocs: dict,
+    pruned_at_cls: str = None,     # last class when pruned
+    prune_stats: dict = None,      # output of _pruning_stats
+    current_mean: float = None,    # running mean when pruned
+    failed_cls: str = None,
+    error: str = None,
+):
+    """Append a trial section to the human-readable Markdown report."""
+    import datetime
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    lines = []
+
+    # ── Header (only on first write) ─────────────────────────────────────────
+    if not os.path.isfile(report_path):
+        lines += [
+            f"# Sweep Report — {study_name}",
+            "",
+            "Each trial is appended as it finishes (complete, pruned, or failed).",
+            "",
+        ]
+
+    # ── Trial section ─────────────────────────────────────────────────────────
+    icon = {"COMPLETE": "✅", "PRUNED": "✂️ ", "FAILED": "❌"}.get(status, "?")
+    lines += [
+        f"---",
+        f"## Trial {trial_number} — {status} {icon}  `{now}`",
+        f"**Name**: `{trial_name}`",
+        "",
+    ]
+
+    if status == "COMPLETE":
+        mean = float(np.mean(list(class_aurocs.values()))) if class_aurocs else float("nan")
+        lines += [
+            f"**Mean AUROC**: **{mean:.4f}** ({len(class_aurocs)} classes)",
+            "",
+            "| Class | AUROC |",
+            "|-------|------:|",
+        ]
+        for cls, auc in sorted(class_aurocs.items()):
+            lines.append(f"| {cls} | {auc:.4f} |")
+
+    elif status == "PRUNED" and pruned_at_cls is not None:
+        n_done = len(class_aurocs)
+        lines += [
+            f"**Stopped after**: {n_done} class(es) (pruned at `{pruned_at_cls}`)",
+            f"**Running mean**: {current_mean:.4f}",
+            "",
+        ]
+        if prune_stats and prune_stats["n_refs"] > 0:
+            ps = prune_stats
+            delta = current_mean - ps["median"]
+            pct = (delta / ps["median"] * 100) if ps["median"] else 0.0
+            lines += [
+                "**Pruning criterion** (MedianPruner — running mean vs completed trials at same step):",
+                "",
+                f"| Metric | Value |",
+                f"|--------|------:|",
+                f"| Running mean (this trial) | {current_mean:.4f} |",
+                f"| Median @ step {n_done}     | {ps['median']:.4f} |",
+                f"| Mean @ step {n_done}       | {ps['mean']:.4f} |",
+                f"| Best @ step {n_done}       | {ps['max']:.4f} |",
+                f"| Worst @ step {n_done}      | {ps['min']:.4f} |",
+                f"| Δ vs median                | {delta:+.4f} ({pct:+.1f}%) |",
+                f"| Reference trials           | {ps['n_refs']} |",
+                "",
+                f"> Running mean **{current_mean:.4f}** is "
+                f"{'below' if delta < 0 else 'above'} the median "
+                f"**{ps['median']:.4f}** by {abs(delta):.4f} "
+                f"({abs(pct):.1f}%) → pruned.",
+            ]
+        else:
+            lines.append("> Pruned (no reference trials available at this step).")
+
+        if class_aurocs:
+            lines += [
+                "",
+                "**Partial results:**",
+                "",
+                "| Class | AUROC |",
+                "|-------|------:|",
+            ]
+            for cls, auc in sorted(class_aurocs.items()):
+                lines.append(f"| {cls} | {auc:.4f} |")
+
+    elif status == "FAILED":
+        lines += [
+            f"**Failed at class**: `{failed_cls}`",
+            f"**Error**: `{error}`",
+        ]
+        if class_aurocs:
+            lines += [
+                "",
+                "**Partial results before failure:**",
+                "",
+                "| Class | AUROC |",
+                "|-------|------:|",
+            ]
+            for cls, auc in sorted(class_aurocs.items()):
+                lines.append(f"| {cls} | {auc:.4f} |")
+
+    lines.append("")
+
+    with open(report_path, "a", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+
+
+def _make_objective(cfg: dict, sweep_dir: str, device: torch.device,
+                    study: optuna.Study):
+    classes     = cfg["classes"]
+    report_path = os.path.join(sweep_dir, "report.md")
 
     def objective(trial: optuna.Trial) -> float:
         params = _sample_params(trial, cfg)
@@ -410,15 +551,58 @@ def _make_objective(cfg: dict, sweep_dir: str, device: torch.device):
             try:
                 auroc = _run_one_class(cls, params, cfg, device)
             except Exception as exc:
+                import traceback
+                err_msg = traceback.format_exc()
                 LOGGER.error("  [FAILED] %s: %s", cls, exc, exc_info=True)
+                with open(os.path.join(trial_dir, "scores.yaml"), "w") as f:
+                    yaml.dump(
+                        {**class_aurocs,
+                         "failed_class": cls,
+                         "error": str(exc),
+                         "traceback": err_msg},
+                        f, default_flow_style=False, sort_keys=False,
+                    )
+                _append_trial_report(
+                    report_path, cfg["study_name"], trial.number, trial_name,
+                    "FAILED", class_aurocs, failed_cls=cls, error=str(exc),
+                )
                 raise optuna.TrialPruned(f"Class {cls} failed: {exc}")
 
             class_aurocs[cls] = auroc
             LOGGER.info("     AUROC = %.4f", auroc)
 
             # Intermediate reporting lets MedianPruner cut bad trials early
-            trial.report(float(np.mean(list(class_aurocs.values()))), step=len(class_aurocs))
+            # (pruning only fires after n_warmup_steps=3 classes)
+            step         = len(class_aurocs)
+            running_mean = float(np.mean(list(class_aurocs.values())))
+            trial.report(running_mean, step=step)
+
             if trial.should_prune():
+                stats = _pruning_stats(study, step)
+                delta = running_mean - stats["median"] if stats["n_refs"] else float("nan")
+                LOGGER.warning(
+                    "  [PRUNED] after %d class(es)  mean=%.4f  "
+                    "median@step%d=%.4f  Δ=%+.4f  (refs=%d)",
+                    step, running_mean, step,
+                    stats["median"], delta, stats["n_refs"],
+                )
+                with open(os.path.join(trial_dir, "scores.yaml"), "w") as f:
+                    yaml.dump(
+                        {**class_aurocs,
+                         "pruned_after_n_classes": step,
+                         "pruned_at_class": cls,
+                         "running_mean": running_mean,
+                         "median_at_step": stats["median"],
+                         "delta_vs_median": delta},
+                        f, default_flow_style=False, sort_keys=False,
+                    )
+                _append_trial_report(
+                    report_path, cfg["study_name"], trial.number, trial_name,
+                    "PRUNED", class_aurocs,
+                    pruned_at_cls=cls,
+                    prune_stats=stats,
+                    current_mean=running_mean,
+                )
                 raise optuna.TrialPruned("Pruned by MedianPruner.")
 
         mean_auroc = float(np.mean(list(class_aurocs.values())))
@@ -429,6 +613,10 @@ def _make_objective(cfg: dict, sweep_dir: str, device: torch.device):
                 f, default_flow_style=False, sort_keys=False,
             )
 
+        _append_trial_report(
+            report_path, cfg["study_name"], trial.number, trial_name,
+            "COMPLETE", class_aurocs,
+        )
         LOGGER.info("[Trial %d] Mean AUROC = %.4f", trial.number, mean_auroc)
         return mean_auroc
 
@@ -471,11 +659,7 @@ def _discover_classes(data_path: str, dataset: str) -> list:
     "--config", default=None, type=click.Path(exists=True),
     help="Override config file path (default: contribution/sweep_configs/{study_name}.yaml).",
 )
-@click.option(
-    "--all_classes", is_flag=True, default=False,
-    help="Run on all classes found in data_path instead of pilot_classes.",
-)
-def main(study_name: str, config: Optional[str], all_classes: bool):
+def main(study_name: str, config: Optional[str]):
     """Bayesian hyperparameter sweep for PatchCore (reads all settings from YAML)."""
 
     logging.basicConfig(
@@ -495,16 +679,8 @@ def main(study_name: str, config: Optional[str], all_classes: bool):
         if key not in cfg:
             raise KeyError(f"Missing required key in sweep config: '{key}'")
 
-    # ── Resolve class list ────────────────────────────────────────────────────
-    # --all_classes overrides pilot_classes; otherwise pilot_classes restricts
-    # to a subset; if neither is set, discover all classes automatically.
-    if all_classes or "pilot_classes" not in cfg:
-        cfg["classes"] = _discover_classes(cfg["data_path"], cfg["dataset"])
-        if all_classes:
-            LOGGER.info("--all_classes: using all %d classes from %s",
-                        len(cfg["classes"]), cfg["data_path"])
-    else:
-        cfg["classes"] = cfg["pilot_classes"]
+    # ── Resolve class list (always all classes) ───────────────────────────────
+    cfg["classes"] = _discover_classes(cfg["data_path"], cfg["dataset"])
 
     seed        = cfg["seed"]
     n_trials    = cfg["n_trials"]
@@ -514,6 +690,14 @@ def main(study_name: str, config: Optional[str], all_classes: bool):
     dataset_prefix = _DATASET_PREFIX.get(cfg["dataset"], cfg["dataset"].upper())
     sweep_dir = os.path.join(results_root, f"{dataset_prefix}_Sweep_{study_name}")
     os.makedirs(sweep_dir, exist_ok=True)
+
+    # ── File logging (sweep.log in sweep dir, append mode for resumed sweeps) ──
+    log_path = os.path.join(sweep_dir, "sweep.log")
+    file_handler = logging.FileHandler(log_path, mode="a", encoding="utf-8")
+    file_handler.setFormatter(logging.Formatter(
+        "%(asctime)s  %(levelname)-8s  %(message)s", datefmt="%H:%M:%S"
+    ))
+    logging.getLogger().addHandler(file_handler)
 
     storage_url = f"sqlite:///{os.path.abspath(os.path.join(sweep_dir, study_name + '.db'))}"
 
@@ -543,7 +727,7 @@ def main(study_name: str, config: Optional[str], all_classes: bool):
 
     # ── Optuna study ──────────────────────────────────────────────────────────
     sampler = optuna.samplers.TPESampler(seed=seed)
-    pruner  = optuna.pruners.MedianPruner(n_startup_trials=5, n_warmup_steps=1)
+    pruner  = optuna.pruners.MedianPruner(n_startup_trials=5, n_warmup_steps=3)
 
     study = optuna.create_study(
         study_name=study_name,
@@ -560,34 +744,45 @@ def main(study_name: str, config: Optional[str], all_classes: bool):
     )
     LOGGER.info("Already completed: %d trial(s). Running %d more.", n_done, n_trials)
 
-    objective = _make_objective(cfg, sweep_dir, device)
-    study.optimize(
-        objective,
-        n_trials=n_trials,
-        show_progress_bar=True,
-        catch=(Exception,),
-    )
+    objective = _make_objective(cfg, sweep_dir, device, study)
 
-    # ── Final summary ─────────────────────────────────────────────────────────
+    interrupted = False
+    try:
+        study.optimize(
+            objective,
+            n_trials=n_trials,
+            show_progress_bar=True,
+            catch=(Exception,),
+        )
+    except KeyboardInterrupt:
+        interrupted = True
+        LOGGER.warning("=" * 60)
+        LOGGER.warning("Sweep interrupted by user (Ctrl+C).")
+        LOGGER.warning("Completed trials are saved and resumable.")
+
+    # ── Final summary (written on normal completion AND on interrupt) ──────────
     completed = [
         t for t in study.trials
         if t.state == optuna.trial.TrialState.COMPLETE
     ]
     if not completed:
-        LOGGER.warning("No trials completed successfully.")
+        LOGGER.warning("No trials completed successfully — no best_trial.yaml written.")
         return
 
     best = study.best_trial
     LOGGER.info("=" * 60)
+    if interrupted:
+        LOGGER.info("Partial summary (sweep interrupted after %d completed trial(s)):",
+                    len(completed))
     LOGGER.info("Best trial  #%d", best.number)
     LOGGER.info("Mean AUROC  : %.4f", best.value)
     LOGGER.info("Params      : %s", best.params)
 
-    # trial_name was stored as a user_attr inside the objective.
     best_trial_name = best.user_attrs.get("trial_name", "(see best_params)")
 
     summary = {
         "study_name":          study_name,
+        "interrupted":         interrupted,
         "n_completed_trials":  len(completed),
         "best_trial_number":   best.number,
         "best_mean_auroc":     best.value,
@@ -599,6 +794,9 @@ def main(study_name: str, config: Optional[str], all_classes: bool):
         yaml.dump(summary, f, default_flow_style=False, sort_keys=False)
 
     LOGGER.info("Summary written to %s", summary_path)
+    if interrupted:
+        LOGGER.info("Resume with: python contribution/sweep.py --study_name %s",
+                    study_name)
 
 
 if __name__ == "__main__":

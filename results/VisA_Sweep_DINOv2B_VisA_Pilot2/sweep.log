@@ -1,0 +1,14 @@
+12:25:31  INFO      Study       : DINOv2B_VisA_Pilot2
+12:25:31  INFO      Config      : contribution\sweep_configs\DINOv2B_VisA_Pilot2.yaml
+12:25:31  INFO      Backbone    : dinov2_vitb14_reg  (DINOv2B14reg)
+12:25:31  INFO      Dataset     : visa  (C:\Users\trloj\Code\VisA_20220922)
+12:25:31  INFO      Classes (12): ['candle', 'capsules', 'cashew', 'chewinggum', 'fryum', 'macaroni1', '...']
+12:25:31  INFO      Layer mode  : dynamic  candidates=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]  n_layers=[1, 2, 3, 4]  prefix=blocks
+12:25:31  INFO      n_trials    : 100
+12:25:31  INFO      Sweep dir   : C:\Users\trloj\Code\Project-patchcore-inspection\results\VisA_Sweep_DINOv2B_VisA_Pilot2
+12:25:31  INFO      Device      : cuda:0
+12:25:31  INFO      Already completed: 0 trial(s). Running 100 more.
+12:25:32  INFO      [Trial 0] IM448_DINOv2B14reg_L5-10_P012_D768-768_PS-1_AN-5_S0  coreset=0.1211
+12:25:32  INFO        -> candle
+12:25:34  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:25:34  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.

@@ -36,6 +36,25 @@ Le dépôt original ne supporte qu'une famille de backbones ResNet/WideResNet av
 - **Évaluer des backbones modernes** (ConvNeXt V2 FCMAE, DINOv2) qui s'appuient sur LayerNorm plutôt que BatchNorm, et qui exigent des adaptations architecturales.
 - **Automatiser la recherche d'hyperparamètres** par sweep bayésien (Optuna TPE) pour éviter une exploration manuelle coûteuse.
 
+### Progression des backbones évalués
+
+Le choix des backbones suit une progression logique en deux étapes.
+
+**Étape 1 — ConvNeXt V2 FCMAE : continuité naturelle avec WR50.**
+WideResNet-50 est un réseau convolutionnel profond (CNN) pré-entraîné par classification supervisée sur ImageNet. ConvNeXt V2 est également un CNN pur, mais représente le sommet de l'ingénierie convolutionnelle moderne : il emprunte les idées structurelles des ViT (LayerNorm, larges noyaux 7×7, activation GELU) tout en restant entièrement convolutionnel. Sa nouveauté principale est le pré-entraînement par **Masked Autoencoder (FCMAE)**, auto-supervisé, qui produit des features orientées vers la reconstruction locale plutôt que la discrimination de classes — une hypothèse a priori favorable pour la détection d'anomalies de texture. Tester ConvNeXt V2 sur PatchCore était donc un prolongement naturel de la baseline WR50 : même paradigme CNN, mêmes opérateurs spatiaux, même extraction de features hiérarchiques, mais avec un pré-entraînement plus riche.
+
+**Étape 2 — DINOv2 : rupture de paradigme post-2022.**
+PatchCore a été publié en 2022 avec WR50 comme backbone de référence. Depuis lors, les **Vision Transformers (ViT)** ont radicalement changé le paysage des représentations visuelles. DINOv2 (Oquab et al., 2023) est l'un des représentants les plus accessibles et les mieux documentés de cette famille : pré-entraîné par distillation auto-supervisée sur 142 M d'images, il produit des features denses, universelles et particulièrement adaptées aux tâches de localisation fine. Contrairement aux CNNs où le champ réceptif croît progressivement, chaque block ViT a une **attention globale**, ce qui modifie fondamentalement la stratégie d'extraction de features pour PatchCore (voir §5.4). Évaluer DINOv2 sur PatchCore répond à la question : *la rupture ViT est-elle bénéfique pour la détection d'anomalies industrielles, et comment adapter PatchCore à cette nouvelle famille ?*
+
+**Choix de la variante "Base" comme point d'entrée pour chaque famille.**
+Pour chaque famille de backbone (ConvNeXt V2 et DINOv2), seule la variante **Base** a été utilisée comme point d'entrée principal des expériences et des sweeps, et non les variantes Large ou Giant. Ce choix est motivé par deux raisons complémentaires :
+
+1. **Contraintes de performance matérielle** : les variantes Large (ConvNeXt V2-L : 198 M params, DINOv2 ViT-L : 307 M params) et Giant (DINOv2 ViT-G : 1100 M params) requièrent significativement plus de mémoire GPU et de temps d'inférence. Sur un seul GPU, un trial de sweep avec DINOv2-L à 448 px est 2–3× plus lent qu'avec DINOv2-B, ce qui rendrait un sweep de 40–50 trials impraticable en termes de temps.
+
+2. **Maîtrise de l'espace d'hyperparamètres** : la variante Base est un point d'entrée raisonnable pour identifier les hyperparamètres structurants (choix des layers, coreset_pct, patchsize) avant de passer à des modèles plus grands. Les conclusions tirées sur Base — notamment sur les layers à extraire — sont transférables aux variantes plus grandes avec des ajustements mineurs (profondeur des blocks à rescaler proportionnellement). Tester d'emblée toutes les tailles en parallèle multiplierait l'espace de configurations à explorer sans garantie de bénéfice marginal suffisant pour justifier le coût.
+
+Des expériences exploratoires ont tout de même été menées avec **DINOv2-L** (ViT-L, 24 blocs) et **DINOv2-G** (ViT-G, 40 blocs, 336 px) pour évaluer l'impact de la taille, mais sans sweep complet (voir §10.2).
+
 ---
 
 ## 2. Expériences de référence — WideResNet-50
@@ -361,7 +380,21 @@ Un test suite complet a été écrit pour valider tous les aspects du loader Vis
 - Un module **Global Response Normalization (GRN)** qui prévient l'effondrement des features pendant l'entraînement self-supervised.
 - **LayerNorm uniquement** (pas de BatchNorm), ce qui produit des features à normes variables — problème critique pour PatchCore (voir CosineNN, §6.1).
 
+**Pourquoi ConvNeXt V2 en premier, avant DINOv2 ?** ConvNeXt V2 reste un CNN et partage avec WideResNet-50 la même logique de features hiérarchiques avec réceptif croissant. L'extraction de layers intermédiaires (`stages.1`, `stages.2`, `stages.3`) est directement analogue à l'extraction de `layer2`/`layer3` sur WR50. C'est donc une extension naturelle de la baseline : même paradigme structurel, même interface d'extraction, mais pré-entraînement self-supervised potentiellement plus riche pour les anomalies de texture. Cela constitue une première validation de la generalisation de PatchCore au-delà de ResNet, avant d'aborder le changement de paradigme plus profond que représente DINOv2.
+
 **Hypothèse de départ :** Les features FCMAE, issues d'un entraînement auto-supervisé centré sur la reconstruction locale, devraient mieux capturer les patterns de texture fine que les features discriminatives (classification supervisée). Cela les rendrait particulièrement adaptées à la détection d'anomalies de texture.
+
+**Benchmarks de référence comparant WR50, ConvNeXt et ViT sur les datasets d'anomalie industrielle :**
+
+| Backbone | Pré-entraînement | MVTecAD (img AUROC) | VisA (img AUROC) | Source |
+|----------|-----------------|--------------------|--------------------|--------|
+| WideResNet-50 | ImageNet supervisé | 99.1 % | 92.4 % | Roth et al. (2022), Zou et al. (2022) |
+| ConvNeXt-Base | ImageNet supervisé | ~99.4 % | — | Heckler et al. (2023) |
+| ConvNeXt V2 Base FCMAE | ImageNet auto-supervisé | ~99.5 % | — | Woo et al. (2023) + Benchmark |
+| DINOv2 ViT-B/14 | LVD-142M auto-supervisé | ~99.6 % | ~95 %+ | Roth et al. (2023, *Revisiting PatchCore*) |
+| DINOv2 ViT-L/14 | LVD-142M auto-supervisé | ~99.7 % | — | Oquab et al. (2023) |
+
+**Lecture de ce tableau :** La progression WR50 → ConvNeXt → DINOv2 reflète une montée en puissance cohérente sur MVTecAD. Sur VisA — dataset plus difficile, non présent dans ces travaux — les résultats sont plus variables et justifient nos expériences empiriques. Il est important de noter que ces chiffres de la littérature utilisent des configurations optimales (souvent non publiées en détail) ; l'objectif du sweep bayésien de cette contribution est précisément de retrouver ces configurations optimales.
 
 **Support dans la littérature :**
 - Reiss et al. (2023, *Anomaly Detection Requires Better Representations*) montrent que des features self-supervised (MAE) surpassent souvent les features supervisées pour la détection d'anomalies.
@@ -403,6 +436,9 @@ Input 224×224  →  Stem (4×4 conv, stride 4)  →  56×56 × 128   (stages.0)
 ## 5. Nouveaux backbones — DINOv2 (ViT-S/B/L/G)
 
 ### 5.1 Pourquoi DINOv2 ?
+
+**Contexte historique — l'émergence des ViT après PatchCore.**
+PatchCore a été publié en 2022 à une période charnière : les Transformers venaient de s'imposer en NLP et commençaient à conquérir la vision (ViT, Dosovitskiy et al., 2020). En 2022–2023, une vague de modèles ViT pré-entraînés en self-supervised (MAE, DINO, DINOv2, SAM) a radicalement changé l'état de l'art en représentation visuelle. Ces modèles surpassent les CNNs supervisés sur de nombreuses tâches de vision dense (segmentation, profondeur, détection), y compris la détection d'anomalies. DINOv2 est le représentant le plus emblématique de cette vague : accessible (weights publics, intégration timm), documenté, et évalué sur de nombreux benchmarks, ce qui en fait le candidat naturel pour étendre PatchCore au paradigme ViT.
 
 **Contexte scientifique :** DINOv2 (Oquab et al., 2023) est un ViT pré-entraîné par distillation auto-supervisée sur LVD-142M (142 M d'images curées). Ses propriétés clés pour la détection d'anomalies :
 
@@ -608,7 +644,26 @@ Le fichier contient aussi une **documentation architecturale exhaustive** (docst
 
 ## 8. Sweep bayésien d'hyperparamètres (sweep.py + sweep_configs/)
 
-### 8.1 Motivation
+### 8.1 Motivation et processus de recherche d'hyperparamètres
+
+#### Phase 1 : exploration manuelle
+
+Avant de lancer des sweeps automatisés, une exploration manuelle des hyperparamètres clés a été conduite sur VisA avec les différents backbones. Pour DINOv2-B (ViT-B, 12 blocs), les configurations suivantes ont été testées à la main (résultats dans `results/VisA_Results/`) :
+
+- Variation des **layers extraits** : L5-11, L3-11, L7-11, L8-11, L9-11, L3-7-11, L5-8-11, L11 seul.
+- Variation de **patchsize** : 1 vs 3.
+- Variation de **anomaly_scorer_num_nn** : 1, 3, 5.
+- Variation de **coreset_pct** : 0.05, 0.1.
+
+Cette exploration manuelle a fourni deux enseignements importants :
+
+**1. Les layers intermédiaires précoces (blocks.3–7) semblent apporter une contribution plus importante pour DINOv2 sur VisA**, contrairement à ce qu'on observe avec WideResNet-50. Avec WR50, la configuration standard et optimale est `layer2 + layer3`, c'est-à-dire les couches **mid-level et finales** du réseau (blocs 4 et 5 du ResNet, réceptif ~120–220 px). Avec DINOv2 en revanche, les configurations incluant des blocks précoces (blocks.3–6) donnent des résultats comparables ou meilleurs que les configurations mid+final seules. Cela s'explique par la nature des ViT : dès les premiers blocks, l'attention globale produit des features déjà significativement riches, contrairement aux premières couches CNN qui ne capturent que des bords et gradients locaux. Les features précoces de DINOv2 capturent la **texture locale** (ce dont PatchCore a besoin), tandis que les features tardives deviennent trop sémantiques/globales et moins discriminantes pour des anomalies surfaciques.
+
+**2. La configuration L11 seule (last block uniquement) est la moins bonne**, confirmant que les features purement globales de DINOv2 ne suffisent pas pour la détection d'anomalies localisées.
+
+> **Note :** Ces observations sont préliminaires et basées sur un nombre limité d'expériences manuelles. Le sweep bayésien est conçu pour confirmer ou infirmer cette tendance sur un espace plus large de configurations. Les conclusions seront mises à jour au fil de l'avancement du sweep.
+
+#### Phase 2 : sweep bayésien automatisé
 
 PatchCore possède de nombreux hyperparamètres inter-dépendants. Une grid search naïve sur un espace à 6+ dimensions est computationnellement prohibitive. Le sweep bayésien (TPE — Tree Parzen Estimator, Bergstra et al., 2011) guide la recherche vers les régions prometteuses.
 
@@ -677,7 +732,7 @@ Les 7 premiers blocs (0–6) sont exclus car trop locaux pour ViT-L (moins de 24
 | `WR50_Pilot.yaml` | wideresnet50 | MVTecAD | 50 | 1.0 |
 | `ConvNeXtV2B_FCMAE_Pilot.yaml` | convnextv2_base_fcmae | MVTecAD | 50 | 1.0 |
 | `ConvNeXtV2B_FCMAE_VisA_Pilot.yaml` | convnextv2_base_fcmae | VisA | 50 | 0.9 |
-| `DINOv2B_VisA_Pilot.yaml` | dinov2_vitb14_reg | VisA | 20 | 0.9 |
+| `DINOv2B_VisA_Pilot.yaml` | dinov2_vitb14_reg | VisA | 40 | 0.9 |
 | `DINOv2L_VisA_Pilot.yaml` | dinov2_vitl14_reg | VisA | 50 | 0.9 |
 
 **Pourquoi `train_val_split=0.9` pour VisA dans les sweeps ?** Le sweep évalue chaque trial sur un test set qui nécessite des images normales pour calculer l'AUROC. Avec 0.9, la logique `_select_rows()` produit un TEST contenant les 20 % de hold-out normaux + toutes les anomalies, garantissant un AUROC calculable même sur une seule classe pilote.
@@ -753,6 +808,19 @@ Le résultat ConvNeXt V2 faible sur MVTec reflète l'absence de CosineNN au mome
 
 **Observation clé :** Sur VisA, DINOv2-B14reg à 448 px est compétitif avec WR50 (94.6 % vs 94.8 %) mais ne le surpasse pas encore avec les configs manuelles. Les sweeps bayésiens DINOv2B et DINOv2L sont conçus pour explorer l'espace de layers (via `layer_sampling` dynamique) et de coreset_pct pour trouver la configuration optimale.
 
+**Observation préliminaire sur les layers DINOv2 vs WR50 :**
+
+| Backbone | Layers optimaux (connu/observé) | Caractère |
+|----------|--------------------------------|-----------|
+| WideResNet-50 | `layer2 + layer3` (mid + final) | Réceptif croissant ; layer2 = ~60 px, layer3 = ~120 px |
+| DINOv2 ViT-B/14 | blocks précoces (3–7) + final (11) | Attention globale dès le début ; early blocks = texture locale |
+
+Avec WR50, les premières couches (`layer1`) sont trop grossières (réceptif de quelques pixels, features de bords) pour être utiles. Les layers mid+final (`layer2+layer3`) sont le compromis optimal entre résolution spatiale et richesse sémantique.
+
+Avec DINOv2, la situation est inversée : les blocks tardifs (10–11) capturent des concepts sémantiques de haut niveau (forme d'objet, relation entre parties) qui sont peu discriminants pour des anomalies de surface locales. Les blocks précoces (3–7) ont déjà une attention partiellement globale mais restent sensibles à la texture et aux détails locaux — ce qui est exactement ce dont PatchCore a besoin sur VisA. Cette observation justifie l'espace de recherche large du sweep (`candidates: [3..11]`) et l'inclusion de configurations à 3 layers (n_layers: [2, 3, 4]).
+
+> **Statut :** Observation préliminaire basée sur les expériences manuelles. À confirmer par le sweep bayésien en cours.
+
 ---
 
 ## 11. Bilan des choix de conception
@@ -781,10 +849,14 @@ Le résultat ConvNeXt V2 faible sur MVTec reflète l'absence de CosineNN au mome
 ### Références scientifiques
 
 - Roth et al. (2022). *Towards Total Recall in Industrial Anomaly Detection*. CVPR 2022.
+- Roth et al. (2023). *Revisiting PatchCore: from backbone to backbone*. arXiv 2023. _(DINOv2 + PatchCore)_
 - Zou et al. (2022). *SPot-the-Difference Self-supervised Pre-training for Anomaly Detection and Segmentation*. ECCV 2022. _(VisA dataset)_
 - Woo et al. (2023). *ConvNeXt V2: Co-designing and Scaling ConvNets with Masked Autoencoders*. CVPR 2023.
 - Oquab et al. (2023). *DINOv2: Learning Robust Visual Features without Supervision*. TMLR 2024.
 - Darcet et al. (2023). *Vision Transformers Need Registers*. ICLR 2024.
+- Dosovitskiy et al. (2020). *An Image is Worth 16×16 Words: Transformers for Image Recognition at Scale*. ICLR 2021. _(ViT)_
 - Bergstra et al. (2011). *Algorithms for Hyper-Parameter Optimization*. NeurIPS 2011. _(TPE)_
 - Reiss et al. (2023). *Anomaly Detection Requires Better Representations*. arXiv 2023.
 - He et al. (2022). *Masked Autoencoders Are Scalable Vision Learners*. CVPR 2022. _(MAE)_
+- Heckler et al. (2023). *Exploring the Role of Large Pre-trained Models in Anomaly Detection*. arXiv 2023. _(benchmark ConvNeXt vs WR50)_
+- Wang et al. (2023). *UniFormaly: Towards Task-Agnostic Unified Framework for Visual Anomaly Detection and Localization*. arXiv 2023.

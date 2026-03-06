@@ -16,12 +16,6 @@ dataset: visa
 data_path: C:\Users\trloj\Code\VisA_20220922
 
 
-pilot_classes:
-  - candle
-  - cashew
-  - capsules
-  - pcb1
-
 # ─── Backbone ─────────────────────────────────────────────────────────────────
 backbone: convnextv2_base_fcmae
 backbone_short: ConvNeXtV2B_FCMAE

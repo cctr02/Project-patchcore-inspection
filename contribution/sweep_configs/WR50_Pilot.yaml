@@ -16,12 +16,6 @@ dataset: mvtec
 data_path: C:\Users\trloj\Code\mvtec_anomaly_detection
 train_val_split: 1.0
 
-pilot_classes:
-  - capsule
-  - carpet
-  - grid
-  - screw
-
 # ─── Backbone ─────────────────────────────────────────────────────────────────
 backbone: wideresnet50
 backbone_short: WR50

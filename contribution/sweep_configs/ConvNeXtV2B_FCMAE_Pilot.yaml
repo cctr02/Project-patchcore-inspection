@@ -16,12 +16,6 @@ dataset: mvtec          # "mvtec" | "visa"
 data_path: C:\Users\trloj\Code\mvtec_anomaly_detection
 train_val_split: 1.0    # for VisA only (mvtec ignores it)
 
-pilot_classes:
-  - capsule
-  - carpet
-  - grid
-  - screw
-
 # ─── Backbone ─────────────────────────────────────────────────────────────────
 backbone: convnextv2_base_fcmae
 backbone_short: ConvNeXtV2B_FCMAE   # used in trial folder names

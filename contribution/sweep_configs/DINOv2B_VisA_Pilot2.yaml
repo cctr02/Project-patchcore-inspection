@@ -1,11 +1,11 @@
 # ─── Study identity ───────────────────────────────────────────────────────────
-study_name: DINOv2B_VisA_Pilot
+study_name: DINOv2B_VisA_Pilot2
 results_root: results
 
 # ─── Hardware / runtime ───────────────────────────────────────────────────────
 gpu: 0
 seed: 0
-n_trials: 40
+n_trials: 100
 batch_size: 4
 num_workers: 0
 faiss_on_gpu: false
@@ -14,7 +14,6 @@ faiss_num_workers: 4
 # ─── Dataset ──────────────────────────────────────────────────────────────────
 dataset: visa
 data_path: C:\Users\trloj\Code\VisA_20220922
-
 
 # ─── Backbone ─────────────────────────────────────────────────────────────────
 # ViT-B/14 with register tokens — 768 channels, 12 blocks (0-11)
@@ -36,8 +35,8 @@ search_space:
   # block; high-scoring blocks appear more often in future trials.
   # If block 11 always boosts AUROC, TPE raises block_score_11 automatically.
   layer_sampling:
-    candidates: [3, 4, 5, 6, 7, 8, 9, 10, 11]   # skip very early blocks (0-2)
-    n_layers: [2, 3, 4]                              # try 2-block and 3-block combos
+    candidates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]   # skip very early blocks (0-2)
+    n_layers: [1, 2, 3, 4]                              # try 2-block and 3-block combos
     layer_prefix: blocks
 
   pretrain_embed_dimension:
@@ -55,7 +54,7 @@ search_space:
   coreset_fraction:   # fraction kept (0.1 = 10%); P{int*100} in trial name
     type: float_log
     low: 0.01
-    high: 0.1
+    high: 0.2
 
   anomaly_scorer_num_nn:
     type: categorical

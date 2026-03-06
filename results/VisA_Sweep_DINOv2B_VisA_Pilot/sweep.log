@@ -1,0 +1,23 @@
+12:09:28  INFO      Study       : DINOv2B_VisA_Pilot
+12:09:28  INFO      Config      : contribution\sweep_configs\DINOv2B_VisA_Pilot.yaml
+12:09:28  INFO      Backbone    : dinov2_vitb14_reg  (DINOv2B14reg)
+12:09:28  INFO      Dataset     : visa  (C:\Users\trloj\Code\VisA_20220922)
+12:09:28  INFO      Classes (12): ['candle', 'capsules', 'cashew', 'chewinggum', 'fryum', 'macaroni1', '...']
+12:09:28  INFO      Layer mode  : dynamic  candidates=[3, 4, 5, 6, 7, 8, 9, 10, 11]  n_layers=[2, 3, 4]  prefix=blocks
+12:09:28  INFO      n_trials    : 40
+12:09:28  INFO      Sweep dir   : C:\Users\trloj\Code\Project-patchcore-inspection\results\VisA_Sweep_DINOv2B_VisA_Pilot
+12:09:28  INFO      Device      : cuda:0
+12:09:28  INFO      Already completed: 10 trial(s). Running 40 more.
+12:09:28  INFO      [Trial 21] IM448_DINOv2B14reg_L3-7_P010_D768-768_PS-1_AN-5_S0  coreset=0.0957
+12:09:28  INFO        -> candle
+12:09:30  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:09:30  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:14:47  INFO           AUROC = 0.9524
+12:14:47  INFO      [Trial 22] IM448_DINOv2B14reg_L3-5_P009_D768-768_PS-1_AN-5_S0  coreset=0.0949
+12:14:47  INFO        -> candle
+12:14:49  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:14:49  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:20:02  INFO           AUROC = 0.9622
+12:20:02  INFO        -> capsules
+12:20:03  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:20:03  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.

@@ -16,12 +16,6 @@ dataset: visa
 data_path: C:\Users\trloj\Code\VisA_20220922
 
 
-pilot_classes:
-  - candle
-  - cashew
-  - capsules
-  - pcb1
-
 # ─── Backbone ─────────────────────────────────────────────────────────────────
 # ViT-L/14 with register tokens — 1024 channels, 24 blocks (0-23)
 backbone: dinov2_vitl14_reg

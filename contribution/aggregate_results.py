@@ -21,12 +21,20 @@ import os
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
+import yaml
+
 
 METRICS = ["instance_auroc", "full_pixel_auroc", "anomaly_pixel_auroc"]
 
 DATASET_GROUPS = {
     "MVTecAD_Results": "MVTecAD",
     "VisA_Results":    "VisA",
+}
+
+# Folder-name prefixes that identify sweep output directories
+SWEEP_PREFIXES = {
+    "MVTecAD_Sweep_": "MVTecAD",
+    "VisA_Sweep_":    "VisA",
 }
 
 
@@ -77,6 +85,64 @@ def read_results_csv(csv_path: Path) -> Dict[str, Dict[str, float]]:
                 except (KeyError, ValueError):
                     values[metric] = float("nan")
             data[name] = values
+    return data
+
+
+def find_sweep_scores(results_root: Path) -> List[Tuple[str, str, Path]]:
+    """
+    Returns list of (dataset_label, experiment_name, scores_yaml_path) for every
+    sweep trial that has a scores.yaml file.
+
+    Sweep folders are identified by their prefix (e.g. VisA_Sweep_*, MVTecAD_Sweep_*).
+    Experiment name is formatted as  "[StudyName] TrialName"  to distinguish
+    sweep trials from regular runs in the output CSV.
+    """
+    found = []
+    for folder in sorted(results_root.iterdir()):
+        if not folder.is_dir():
+            continue
+        dataset_label = None
+        study_name    = None
+        for prefix, label in SWEEP_PREFIXES.items():
+            if folder.name.startswith(prefix):
+                dataset_label = label
+                study_name    = folder.name[len(prefix):]
+                break
+        if dataset_label is None:
+            continue
+        for trial_dir in sorted(folder.iterdir()):
+            if not trial_dir.is_dir():
+                continue
+            scores_path = trial_dir / "scores.yaml"
+            if scores_path.is_file():
+                exp_name = f"[{study_name}] {trial_dir.name}"
+                found.append((dataset_label, exp_name, scores_path))
+    return found
+
+
+def read_scores_yaml(yaml_path: Path) -> Dict[str, Dict[str, float]]:
+    """
+    Parses a sweep trial's scores.yaml into the same format as read_results_csv().
+
+    scores.yaml structure:
+        candle: 0.9512
+        cashew: 0.9801
+        ...
+        mean_auroc: 0.9623
+
+    Returns {subset: {metric: value}}.  Only instance_auroc is present;
+    pixel metrics are left absent (will render as empty in the CSV).
+    """
+    with open(yaml_path) as f:
+        raw = yaml.safe_load(f)
+
+    data = {}
+    for key, val in raw.items():
+        subset = "Mean" if key == "mean_auroc" else key
+        try:
+            data[subset] = {"instance_auroc": float(val)}
+        except (TypeError, ValueError):
+            pass
     return data
 
 
@@ -145,23 +211,40 @@ def main():
 
     out_path = Path(args.out) if args.out else results_root / "aggregated_results.csv"
 
-    # Discover all results.csv files
-    entries_raw = find_results_csvs(results_root)
-    if not entries_raw:
-        raise SystemExit("No results.csv files found.")
-
-    print(f"Found {len(entries_raw)} experiments:")
-    for dataset, exp, path in entries_raw:
-        print(f"  [{dataset}]  {exp}")
-
-    # Parse each CSV
     all_entries: List[Tuple[str, str, dict]] = []
-    for dataset, exp, csv_path in entries_raw:
-        data = read_results_csv(csv_path)
-        if "Mean" not in data:
-            print(f"  WARNING: no Mean row in {csv_path}, skipping.")
-            continue
-        all_entries.append((dataset, exp, data))
+
+    # ── Regular results (results.csv) ─────────────────────────────────────────
+    entries_raw = find_results_csvs(results_root)
+    if entries_raw:
+        print(f"Found {len(entries_raw)} regular experiment(s):")
+        for dataset, exp, path in entries_raw:
+            print(f"  [{dataset}]  {exp}")
+        for dataset, exp, csv_path in entries_raw:
+            data = read_results_csv(csv_path)
+            if "Mean" not in data:
+                print(f"  WARNING: no Mean row in {csv_path}, skipping.")
+                continue
+            all_entries.append((dataset, exp, data))
+    else:
+        print("No regular results.csv files found.")
+
+    # ── Sweep trials (scores.yaml) ────────────────────────────────────────────
+    sweep_raw = find_sweep_scores(results_root)
+    if sweep_raw:
+        print(f"\nFound {len(sweep_raw)} sweep trial(s):")
+        for dataset, exp, path in sweep_raw:
+            print(f"  [{dataset}]  {exp}")
+        for dataset, exp, yaml_path in sweep_raw:
+            data = read_scores_yaml(yaml_path)
+            if "Mean" not in data:
+                print(f"  WARNING: no mean_auroc in {yaml_path}, skipping.")
+                continue
+            all_entries.append((dataset, exp, data))
+    else:
+        print("No sweep scores.yaml files found.")
+
+    if not all_entries:
+        raise SystemExit("Nothing to aggregate.")
 
     # Sort: group by dataset (MVTecAD before VisA), then by mean instance_auroc desc
     DATASET_ORDER = {"MVTecAD": 0, "VisA": 1}
