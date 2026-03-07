@@ -116,23 +116,6 @@ python bin/run_patchcore.py `
     $dataset_visa_flags `
     visa $datapath_visa
 
-python bin/run_patchcore.py `
-  --gpu 0 --seed 0 --save_patchcore_model `
-  --log_group IM224_ConvNeXtV2B_FCMAE_L1-2-3_P01_D1792-1024_PS-3_AN-1_S0 `
-  --log_project VisA_Results `
-  results `
-  patch_core `
-    -b convnextv2_base_fcmae -le stages.1 -le stages.2 -le stages.3 `
-    --pretrain_embed_dimension 1792 --target_embed_dimension 1024 `
-    --anomaly_scorer_num_nn 1 --patchsize 3 `
-    --faiss_num_workers 4 `
-  sampler -p 0.1 approx_greedy_coreset `
-  dataset `
-    --resize 256 --imagesize 224 `
-    --num_workers 0 `
-    $dataset_visa_flags `
-    visa $datapath_visa
-
 
 ### dinov2
 #### visa
@@ -198,8 +181,20 @@ python bin/run_patchcore.py `
 allow for resume of sweep after carshes
 python contribution/sweep.py --study_name DINOv2B_VisA_Pilot2
 
+# Vue standard (summary + best + top 20 trials)
+python contribution/inspect_sweep.py --study_name DINOv2B_VisA_Pilot2
+
+# Avec analyse des blocs + distributions de params
+python contribution/inspect_sweep.py --study_name DINOv2B_VisA_Pilot2 --blocks --params
+
+# Tout afficher, tous les trials
+python contribution/inspect_sweep.py --study_name DINOv2B_VisA_Pilot2 --all
+
+# Pointer directement vers un .db
+python contribution/inspect_sweep.py --db results/VisA_Sweep_DINOv2B_VisA_Pilot2/DINOv2B_VisA_Pilot2.db
+
 # Custom config path
-python contribution/sweep.py --study_name MySweep --config path/to/config.yaml
+python contribution/sweep.py --study_name MySweep 
 
 ## Aggregate_results
 python contribution/aggregate_results.py
@@ -226,40 +221,6 @@ python bin/load_and_evaluate_patchcore.py `
     --resize 256 --imagesize 224 --train_val_split 0.9 --num_workers 0 `
     $dataset_visa_flags `
     visa $datapath_visa
-
-## Bayesian hyperparameter sweep (Optuna + TPE)
-# Config files: contribution/sweep_configs/{study_name}.yaml
-# Available presets: ConvNeXtV2B_FCMAE_Pilot | WR50_Pilot | ConvNeXtV2B_FCMAE_VisA_Pilot
-
-### Run / resume a sweep (SQLite persists all trials — resumable after crash)
-python contribution/sweep.py --study_name ConvNeXtV2B_FCMAE_Pilot
-
-### Results layout
-# results/MVTecAD_Sweep_ConvNeXtV2B_FCMAE_Pilot/
-#   ConvNeXtV2B_FCMAE_Pilot.db              <- Optuna SQLite (all trials)
-#   best_trial.yaml                          <- best trial summary
-#   IM288_ConvNeXtV2B_FCMAE_L1-2_P05_D1024-1024_PS-3_AN-1_S0/
-#     config.yaml                            <- all hyperparameters used
-#     scores.yaml                            <- per-class AUROC + mean
-
-### After the sweep: train on full MVTecAD with the best config
-# Read best_trial.yaml, then fill in below:
-python bin/run_patchcore.py `
-  --gpu 0 --seed 0 --save_patchcore_model `
-  --log_group IM{imagesize}_ConvNeXtV2B_FCMAE_{layer_key}_P{pct}_D{pre}-{tgt}_PS-{ps}_AN-{nn}_S0 `
-  --log_project MVTecAD_Results `
-  results `
-  patch_core `
-    -b convnextv2_base_fcmae -le stages.X -le stages.Y `
-    --pretrain_embed_dimension {pre} --target_embed_dimension {tgt} `
-    --anomaly_scorer_num_nn {nn} --patchsize {ps} `
-    --faiss_num_workers 4 `
-  sampler -p {coreset_pct} approx_greedy_coreset `
-  dataset `
-    --resize {resize} --imagesize {imagesize} `
-    --num_workers 0 `
-    $dataset_mvtec_flags `
-    mvtec $datapath_mvtec
 
 ## To visualize datasets
 python contribution/visualize_samples.py `

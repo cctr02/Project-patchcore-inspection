@@ -416,13 +416,96 @@ Huit variantes ConvNeXt V2 ont été enregistrées, couvrant trois tailles et tr
 | `convnextv2_large_fcmae` | `convnextv2_large.fcmae` | 198 M | FCMAE pur |
 | `convnextv2_large_fcmae_ft_in22k` | `convnextv2_large.fcmae_ft_in22k_in1k` | 198 M | FCMAE → IN-22K → IN-1K |
 
-### 4.3 Architecture ConvNeXt V2 Base — référence des feature maps
+### 4.3 Architecture ConvNeXt V2 Base — référence complète
+
+#### Macro structure (entrée 224×224)
 
 ```
-Input 224×224  →  Stem (4×4 conv, stride 4)  →  56×56 × 128   (stages.0)
-  →  Downsample (2×2 conv, stride 2)           →  28×28 × 256   (stages.1)  mid-level
-  →  Downsample (2×2 conv, stride 2)           →  14×14 × 512   (stages.2) ★ optimal
-  →  Downsample (2×2 conv, stride 2)           →   7×7  × 1024  (stages.3)  sémantique
+Composant          Sortie             Notes
+─────────────────  ─────────────────  ──────────────────────────────────────────
+Input              3 × 224 × 224
+Stem               C0 × 56 × 56      conv 4×4 stride 4  +  LayerNorm
+Downsample 1→2     C1 × 28 × 28      conv 2×2 stride 2  +  LayerNorm
+Downsample 2→3     C2 × 14 × 14      conv 2×2 stride 2  +  LayerNorm
+Downsample 3→4     C3 ×  7 × 7       conv 2×2 stride 2  +  LayerNorm
+Global avg pool    C3 × 1 × 1
+FC head            1000               linéaire, ImageNet seulement (non utilisé)
+```
+
+#### Canaux et profondeurs par variante
+
+```
+Variante   stages.0   stages.1   stages.2   stages.3   Profondeurs
+────────   ────────   ────────   ────────   ────────   ──────────────
+Tiny           96        192        384        768      [3, 3,  9, 3]
+Base          128        256        512       1024      [3, 3, 27, 3]
+Large         192        384        768       1536      [3, 3, 27, 3]
+```
+
+#### Feature maps extraits par PatchCore (Base, 224×224)
+
+```
+Arg -le     Canaux   Spatial   Champ réceptif       Ce qu'il capture
+─────────   ──────   ───────   ─────────────────    ──────────────────────────
+stages.0      128     56×56    ≈ 7 px (1 bloc)      Texture fine, bords
+stages.1      256     28×28    ≈ 14–30 px           Patterns mid-level
+stages.2      512     14×14    ≈ 30–90 px           Anomalies structurelles ★
+stages.3     1024      7×7    ≈ 90–224 px           Sémantique global (grossier)
+```
+
+★ `stages.2` est la meilleure couche unique pour la plupart des tâches de détection d'anomalies.
+Combinaison recommandée : `-le stages.1 -le stages.2` (texture + structure).
+
+#### Dimensions spatiales en fonction de l'imagesize
+
+```
+imagesize   stages.0    stages.1    stages.2    stages.3
+─────────   ─────────   ─────────   ─────────   ─────────
+   224       56×56       28×28       14×14        7×7
+   320       80×80       40×40       20×20       10×10
+   448      112×112      56×56       28×28       14×14
+```
+
+#### Internals d'un bloc ConvNeXt V2
+
+Pour chacun des N blocs d'un stage :
+
+```
+entrée (B, C, H, W)
+  │
+  ├─ depthwise conv 7×7, padding 3, groups=C       ← mélange spatial
+  │    pas de stride, C → C
+  │
+  ├─ LayerNorm  (channel-last, sur dimension C)
+  │    ε = 1e-6, pas de mise à l'échelle affine pour les variantes FCMAE
+  │
+  ├─ pointwise Linear C → 4C                       ← expansion des canaux
+  │
+  ├─ activation GELU
+  │
+  ├─ GRN  (Global Response Normalization)           ← nouveauté de V2
+  │    x_c ← x_c · (‖x_c‖₂ / mean_c(‖x_c‖₂))
+  │    prévient l'effondrement des features pendant le pré-entraînement MAE
+  │
+  ├─ pointwise Linear 4C → C                       ← réduction des canaux
+  │
+  └─ addition résiduelle  (+ LayerScale γ, init 1e-6)
+
+Pas de mécanisme d'attention — purement convolutionnel.
+Normalisation : LayerNorm uniquement (pas de BatchNorm).
+Activation    : GELU uniquement.
+```
+
+#### Variantes de pré-entraînement
+
+```
+Clé                          Description
+───────────────────────────  ─────────────────────────────────────────────────
+fcmae                        Masked autoencoder pur, pas de tête de classif.
+                             Bon pour les features texture / self-supervised
+fcmae_ft_in1k                FCMAE → fine-tuné sur ImageNet-1K
+fcmae_ft_in22k_in1k          FCMAE → IN-22K (21 841 cls) → IN-1K  ← meilleur
+(variante 384)               Identique, résolution native 384×384
 ```
 
 **Layers extraits pour PatchCore :**
@@ -496,6 +579,135 @@ Contrairement aux CNNs où le champ réceptif croît block par block, chaque blo
 | `L3-7-11` | ~94 % | Couverture 3 layers |
 | `L5-8-11` | — | Régulier 3 layers |
 | `L11` seul | ~93 % | Trop global pour VisA |
+
+### 5.5 Architecture DINOv2 — référence complète
+
+#### Macro structure (entrée 448×448, exemple ViT-B)
+
+```
+Composant            Sortie (ViT-B)                         Notes
+───────────────────  ─────────────────────────────────────  ─────────────────────────────
+Input                B × 3 × 448 × 448
+Patch embedding      B × (32×32 + 1 + 4) × 768             projection linéaire des patches
+  tokens de patch :  32×32 = 1 024  (1 par tuile 14×14 px)
+  token [CLS]     :  1
+  tokens registre :  4 (variantes *_reg uniquement)
+Pos. embedding       ajouté aux tokens patch + CLS ; redimensionné bicubique si besoin
+Blocs 0..N-1         B × (N_tokens) × 768                  forme inchangée entre blocs
+LayerNorm final      B × (N_tokens) × 768
+Tête (classif.)      B × 1000                               linéaire sur [CLS] ; non utilisé
+
+PatchCore utilise UNIQUEMENT les patch tokens des blocs intermédiaires,
+en éliminant [CLS] et les tokens registre, et en reshapant :
+    (B, H/14 × W/14, C)  →  (B, C, H/14, W/14)
+```
+
+#### Grille de tokens spatiale selon l'imagesize
+
+```
+imagesize   grille de patches   tokens (hors CLS+reg)   Taille effective par token
+─────────   ─────────────────   ─────────────────────   ──────────────────────────
+  224×224       16 × 16               256               14 × 14 px/token
+  336×336       24 × 24               576               14 × 14 px/token
+  448×448       32 × 32              1024               14 × 14 px/token  ★
+  518×518       37 × 37              1369               14 × 14 px/token  (natif)
+```
+
+★ 448 px est le meilleur compromis : assez dense pour la localisation d'anomalies,
+compatible avec les statistiques du pré-entraînement ImageNet.
+`imagesize` doit être divisible par 14.
+
+#### Dimensions des modèles (identiques à chaque bloc)
+
+```
+Backbone     Embed dim   Têtes   Dim/tête   Blocs   MLP caché   Paramètres
+──────────   ─────────   ─────   ────────   ─────   ─────────   ──────────
+ViT-S/14       384         6       64         12      1 536        22 M
+ViT-B/14       768        12       64         12      3 072        86 M
+ViT-L/14      1024        16       64         24      4 096       307 M
+ViT-G/14      1536        24       64         40      6 144      1100 M
+```
+
+Toutes les variantes : `patch_size=14`, pas de CLS dans le MLP, transformer pre-norm.
+
+#### Internals d'un bloc ViT (identique pour chaque bloc, standard et *_reg)
+
+```
+tokens d'entrée  (B, N_tokens, C)
+  │
+  ├─ LayerNorm  (pre-norm, sur C)                  ← normalisation #1
+  │
+  ├─ Multi-Head Self-Attention  (MHSA)             ← couche d'attention
+  │    Q = xW_Q,  K = xW_K,  V = xW_V
+  │    Attention = softmax(QKᵀ / √d_head) · V     (d_head = C / n_heads = 64)
+  │    Sortie = concat(têtes) · W_O
+  │    TOUS les tokens s'attendent mutuellement    ← pas de fenêtre locale
+  │    Pas de biais de position relatif (pos-embed absolu ajouté à l'entrée)
+  │
+  ├─ addition résiduelle
+  │
+  ├─ LayerNorm  (pre-norm, sur C)                  ← normalisation #2
+  │
+  ├─ MLP  (feed-forward network)
+  │    Linear  C → 4C
+  │    GELU
+  │    Linear  4C → C
+  │
+  └─ addition résiduelle
+
+Normalisation : LayerNorm (pre-norm) UNIQUEMENT — pas de BatchNorm, pas de GRN.
+Activation    : GELU dans le MLP, softmax dans l'attention.
+Dropout       : 0.0 à l'inférence (DINOv2 est entraîné sans dropout).
+```
+
+#### Caractère des features par plage de blocs
+
+Parce que chaque bloc ViT a une **self-attention globale**, même les premiers blocs ont un contexte global partiel (contrairement aux CNNs où le champ réceptif croît progressivement).
+
+```
+Plage de blocs   Caractère des features
+────────────────  ──────────────────────────────────────────────────────────────
+blocs.0–2         Principalement local : projection de patches + attention minimale.
+                  Capture texture basse fréquence, couleur, bords.
+blocs.N/4         Local + global émergent : patterns locaux avec conscience de position.
+                  Bon complément texture d'une couche plus tardive.
+blocs.N/2         Équilibré : texture locale riche ET contexte sémantique.  ★ mid
+                  Meilleure couche unique pour les anomalies à dominante texture.
+blocs.N-1         Entièrement global : parties d'objet, cohérence sémantique.  ★ high
+                  Meilleur pour les anomalies structurelles / d'assemblage.
+```
+
+Paires d'extraction recommandées (`-le blocks.A  -le blocks.B`) :
+- ViT-S/B  (12 blocs) : `blocks.5`  + `blocks.11`   (mid + final)
+- ViT-L    (24 blocs) : `blocks.11` + `blocks.23`   (mid + final)
+- ViT-G    (40 blocs) : `blocks.19` + `blocks.39`   (mid + final)
+
+Alternative trois couches pour une couverture maximale :
+- ViT-B : `blocks.3` + `blocks.7` + `blocks.11`
+
+#### Canaux et spatial par couche extraite (ViT-B, 448×448)
+
+```
+Arg -le      Canaux   Spatial (H/14, W/14)   Champ réceptif
+──────────   ──────   ──────────────────────  ──────────────────────────────
+blocks.5      768           32 × 32           Global (image entière via attn)
+blocks.11     768           32 × 32           Global (image entière via attn)
+```
+
+Note : les canaux sont TOUJOURS égaux à `embed_dim`, quel que soit le bloc.
+Le contenu des features change (plus sémantique aux blocs élevés), pas la forme.
+
+#### Tokens registre (variantes *_reg)
+
+Les 4 tokens registre servent de "mémoire" au modèle pour déporter les informations globales hors des tokens de patch. Cela réduit les "artefacts de patch" (patches outliers à haute norme visibles dans les cartes d'attention des ViT standards). PatchCore élimine les tokens registre automatiquement (`DINOv2Aggregator`). Utiliser les variantes `*_reg` pour toutes les tâches de prédiction dense, y compris PatchCore.
+
+#### Positional embedding et résolution dynamique
+
+DINOv2 est pré-entraîné à la résolution native 518×518 (37×37 tokens). Pour d'autres résolutions, le pos-embed absolu est rééchantillonné bicubiquement vers la nouvelle taille de grille via `resample_abs_pos_embed` de timm. `dynamic_img_size=True` est requis dans timm pour activer ce comportement à la volée. PyTorch < 2.0 : le paramètre `antialias` est supprimé silencieusement par monkey-patch (voir `common.py`).
+
+#### Pourquoi CosineNN (et pas FaissNN)
+
+DINOv2 utilise LayerNorm partout → les normes L2 des tokens varient arbitrairement. La distance L2 brute dans FAISS est dominée par les différences de norme, pas par la direction sémantique. La L2-normalisation avant FAISS (`CosineNN`) supprime l'effet de norme et rend la recherche de plus proche voisin purement directionnelle → bien meilleur AUROC.
 
 ---
 
