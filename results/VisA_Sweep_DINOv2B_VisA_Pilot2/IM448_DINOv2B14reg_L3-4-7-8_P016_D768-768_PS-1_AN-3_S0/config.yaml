@@ -1,14 +1,15 @@
 resize: 512
 imagesize: 448
-layer_key: L4-7-8
+layer_key: L3-4-7-8
 layers_to_extract_from:
+- blocks.3
 - blocks.4
 - blocks.7
 - blocks.8
 pretrain_embed_dimension: 768
 target_embed_dimension: 768
 patchsize: 1
-coreset_fraction: 0.13051138987362457
+coreset_fraction: 0.15577265255736797
 anomaly_scorer_num_nn: 3
 backbone: dinov2_vitb14_reg
 classes:

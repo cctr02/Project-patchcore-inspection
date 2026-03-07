@@ -921,3 +921,108 @@ Each trial is appended as it finishes (complete, pruned, or failed).
 | capsules | 0.9017 |
 | cashew | 0.9627 |
 
+---
+## Trial 41 — COMPLETE ✅  `2026-03-07 14:09:53`
+**Name**: `IM448_DINOv2B14reg_L3-4-5_P009_D768-768_PS-1_AN-3_S0`
+
+**Mean AUROC**: **0.9711** (12 classes)
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9433 |
+| capsules | 0.9952 |
+| cashew | 0.8959 |
+| chewinggum | 0.9721 |
+| fryum | 0.9619 |
+| macaroni1 | 0.9685 |
+| macaroni2 | 0.9931 |
+| pcb1 | 0.9775 |
+| pcb2 | 0.9730 |
+| pcb3 | 0.9965 |
+| pcb4 | 0.9789 |
+| pipe_fryum | 0.9972 |
+
+---
+## Trial 42 — COMPLETE ✅  `2026-03-07 15:05:45`
+**Name**: `IM448_DINOv2B14reg_L4-7-8_P013_D768-768_PS-1_AN-3_S0`
+
+**Mean AUROC**: **0.9721** (12 classes)
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9612 |
+| capsules | 0.9621 |
+| cashew | 0.9614 |
+| chewinggum | 0.9941 |
+| fryum | 0.9634 |
+| macaroni1 | 0.9677 |
+| macaroni2 | 0.9437 |
+| pcb1 | 0.9755 |
+| pcb2 | 0.9600 |
+| pcb3 | 0.9967 |
+| pcb4 | 0.9841 |
+| pipe_fryum | 0.9955 |
+
+---
+## Trial 43 — COMPLETE ✅  `2026-03-07 16:03:54`
+**Name**: `IM448_DINOv2B14reg_L4-7-8_P014_D768-768_PS-1_AN-3_S0`
+
+**Mean AUROC**: **0.9721** (12 classes)
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9607 |
+| capsules | 0.9625 |
+| cashew | 0.9622 |
+| chewinggum | 0.9941 |
+| fryum | 0.9637 |
+| macaroni1 | 0.9677 |
+| macaroni2 | 0.9422 |
+| pcb1 | 0.9756 |
+| pcb2 | 0.9600 |
+| pcb3 | 0.9967 |
+| pcb4 | 0.9841 |
+| pipe_fryum | 0.9955 |
+
+---
+## Trial 44 — COMPLETE ✅  `2026-03-07 17:01:58`
+**Name**: `IM448_DINOv2B14reg_L3-5-8_P014_D768-768_PS-1_AN-3_S0`
+
+**Mean AUROC**: **0.9696** (12 classes)
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9561 |
+| capsules | 0.9605 |
+| cashew | 0.9596 |
+| chewinggum | 0.9952 |
+| fryum | 0.9614 |
+| macaroni1 | 0.9645 |
+| macaroni2 | 0.9261 |
+| pcb1 | 0.9725 |
+| pcb2 | 0.9645 |
+| pcb3 | 0.9966 |
+| pcb4 | 0.9830 |
+| pipe_fryum | 0.9954 |
+
+---
+## Trial 45 — COMPLETE ✅  `2026-03-07 18:05:31`
+**Name**: `IM448_DINOv2B14reg_L3-4-7-8_P016_D768-768_PS-1_AN-3_S0`
+
+**Mean AUROC**: **0.9664** (12 classes)
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9555 |
+| capsules | 0.9658 |
+| cashew | 0.9371 |
+| chewinggum | 0.9911 |
+| fryum | 0.9564 |
+| macaroni1 | 0.9673 |
+| macaroni2 | 0.9254 |
+| pcb1 | 0.9704 |
+| pcb2 | 0.9640 |
+| pcb3 | 0.9928 |
+| pcb4 | 0.9759 |
+| pipe_fryum | 0.9956 |
+
