@@ -8,7 +8,7 @@ layers_to_extract_from:
 pretrain_embed_dimension: 768
 target_embed_dimension: 768
 patchsize: 1
-coreset_fraction: 0.13681616550815864
+coreset_fraction: 0.1350725864108232
 anomaly_scorer_num_nn: 3
 backbone: dinov2_vitb14_reg
 classes:
