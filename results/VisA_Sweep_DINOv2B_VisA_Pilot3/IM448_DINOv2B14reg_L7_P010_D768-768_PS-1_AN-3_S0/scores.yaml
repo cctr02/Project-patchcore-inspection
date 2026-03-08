@@ -4,5 +4,5 @@ cashew: 0.9078350515463917
 pruned_after_n_classes: 3
 pruned_at_class: cashew
 running_mean: 0.9360956505136925
-median_at_step: 0.951023046665985
-delta_vs_median: -0.014927396152292549
+median_at_step: 0.9567728106274004
+delta_vs_median: -0.020677160113707904

@@ -1,0 +1,19 @@
+study_name: DINOv2B_VisA_Pilot3
+interrupted: true
+n_completed_trials: 15
+best_trial_number: 1
+best_mean_auroc: 0.9732081249748384
+best_trial_name: IM448_DINOv2B14reg_L5_P010_D768-768_PS-1_AN-3_S0
+best_params:
+  resize_imagesize: 512x448
+  n_layers: 1
+  block_score_3: 0.5288949197529045
+  block_score_4: 0.5680445610939323
+  block_score_5: 0.925596638292661
+  block_score_7: 0.07103605819788694
+  block_score_8: 0.08712929970154071
+  pretrain_embed_dimension: 768
+  target_embed_dimension: 768
+  patchsize: 1
+  coreset_fraction: 0.1
+  anomaly_scorer_num_nn: 3
