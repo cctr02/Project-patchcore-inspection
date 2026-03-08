@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(conda run -n patchcore38 python contribution/inspect_sweep.py --study_name DINOv2B_VisA_Pilot --all)",
+      "Bash(conda env list)",
+      "Bash(conda run -n patchcore38 pip list)",
+      "Bash(conda run -n patchcore38 pip install optuna)",
+      "Bash(PYTHONIOENCODING=utf-8 conda run -n patchcore38 --no-capture-output python contribution/inspect_sweep.py --study_name DINOv2B_VisA_Pilot --all)",
+      "Bash(PYTHONIOENCODING=utf-8 conda run -n patchcore38 --no-capture-output python contribution/inspect_sweep.py --study_name DINOv2B_VisA_Pilot2 --all)",
+      "Bash(PYTHONIOENCODING=utf-8 conda run -n patchcore38 --no-capture-output python contribution/inspect_sweep.py --study_name DINOv2B_VisA_Pilot3 --all)"
+    ]
+  }
+}

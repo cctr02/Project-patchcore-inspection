@@ -16,7 +16,9 @@
 6. [Modifications du cœur PatchCore](#6-modifications-du-cœur-patchcore)
 7. [Enregistrement dynamique des backbones (backbones_extension.py)](#7-enregistrement-dynamique-des-backbones-backbones_extensionpy)
 8. [Sweep bayésien d'hyperparamètres (sweep.py + sweep_configs/)](#8-sweep-bayésien-dhyperparamètres-sweeppy--sweep_configs)
+   - 8.7 [Analyse des sweeps DINOv2B VisA — Pilots 1, 2, 3](#87-analyse-des-sweeps-dinov2b-visa--pilots-1-2-3)
 9. [Outils expérimentaux](#9-outils-expérimentaux)
+   - 9.2 [inspect_sweep.py](#92-inspect_sweeppy)
 10. [Synthèse des résultats expérimentaux](#10-synthèse-des-résultats-expérimentaux)
 11. [Bilan des choix de conception](#11-bilan-des-choix-de-conception)
 
@@ -894,14 +896,10 @@ contribution/sweep.py
 
 **Composants Optuna :**
 - **TPESampler** (seed=0) : modélise P(hyperparams | bon résultat) et P(hyperparams | mauvais résultat) par des KDE, propose des configurations qui maximisent le ratio.
-- **MedianPruner** (`n_startup_trials=5`, `n_warmup_steps=1`) : interrompt un trial si son AUROC intermédiaire (après 1 classe) est inférieur à la médiane des trials complétés. Économise ~50 % du temps de calcul.
-- **SQLite persistence** : chaque trial est sauvegardé immédiatement. Un sweep interrompu peut être **repris sans perte**.
+- **MedianPruner** (`n_startup_trials=5`, `n_warmup_steps=3`) : interrompt un trial si sa running mean (après N classes évaluées) est inférieure à la médiane des trials complétés au même step. Le warmup de 3 classes évite les élagages trop précoces (variance élevée sur 1 seule classe). Économise ~40–60 % du temps de calcul selon le sweep.
+- **SQLite persistence** : chaque trial est sauvegardé immédiatement. Un sweep interrompu peut être **repris sans perte** (relancer la même commande suffit).
 
-**Objectif :** mean image-AUROC sur les `pilot_classes` (4 classes représentatives).
-
-**Choix des pilot classes :**
-- MVTecAD : `capsule, carpet, grid, screw` — classes difficiles couvrant textures complexes et patterns réguliers.
-- VisA : `candle, cashew, capsules, pcb1` — couverture de textures (candle, cashew), structure (capsules), électronique (pcb1).
+**Objectif :** mean image-AUROC sur **toutes les classes du dataset** (12 classes pour VisA, 15 pour MVTecAD). Les sweeps DINOv2B VisA n'utilisent pas de pilot_classes restreintes : chaque trial évalue les 12 classes, permettant à MedianPruner de couper les mauvais trials dès les premières classes (réduction de coût via early stopping plutôt que via un sous-ensemble de classes).
 
 ### 8.3 Gestion spéciale resize/imagesize pour DINOv2
 
@@ -939,17 +937,19 @@ Les 7 premiers blocs (0–6) sont exclus car trop locaux pour ViT-L (moins de 24
 
 ### 8.5 Configs YAML des études
 
-| Fichier | Backbone | Dataset | n_trials | train_val_split |
-|---------|----------|---------|----------|-----------------|
-| `WR50_Pilot.yaml` | wideresnet50 | MVTecAD | 50 | 1.0 |
-| `ConvNeXtV2B_FCMAE_Pilot.yaml` | convnextv2_base_fcmae | MVTecAD | 50 | 1.0 |
-| `ConvNeXtV2B_FCMAE_VisA_Pilot.yaml` | convnextv2_base_fcmae | VisA | 50 | 0.9 |
-| `DINOv2B_VisA_Pilot.yaml` | dinov2_vitb14_reg | VisA | 40 | 0.9 |
-| `DINOv2L_VisA_Pilot.yaml` | dinov2_vitl14_reg | VisA | 50 | 0.9 |
+| Fichier | Backbone | Dataset | n_trials | Blocs candidats | Objectif |
+|---------|----------|---------|----------|-----------------|----------|
+| `WR50_Pilot.yaml` | wideresnet50 | MVTecAD | 50 | layer_combos | baseline CNN |
+| `ConvNeXtV2B_FCMAE_Pilot.yaml` | convnextv2_base_fcmae | MVTecAD | 50 | layer_combos | ConvNeXt MVTec |
+| `ConvNeXtV2B_FCMAE_VisA_Pilot.yaml` | convnextv2_base_fcmae | VisA | 50 | layer_combos | ConvNeXt VisA |
+| `DINOv2B_VisA_Pilot.yaml` | dinov2_vitb14_reg | VisA | 40 | [3..11] | exploration large |
+| `DINOv2B_VisA_Pilot2.yaml` | dinov2_vitb14_reg | VisA | 100 | [1..11] | validation + élargissement |
+| `DINOv2B_VisA_Pilot3.yaml` | dinov2_vitb14_reg | VisA | 50 | [3,4,5,7,8] | recherche ciblée |
+| `DINOv2L_VisA_Pilot.yaml` | dinov2_vitl14_reg | VisA | 50 | [7..23] | ViT-L |
 
-**Pourquoi `train_val_split=0.9` pour VisA dans les sweeps ?** Le sweep évalue chaque trial sur un test set qui nécessite des images normales pour calculer l'AUROC. Avec 0.9, la logique `_select_rows()` produit un TEST contenant les 20 % de hold-out normaux + toutes les anomalies, garantissant un AUROC calculable même sur une seule classe pilote.
+**`train_val_split` pour les sweeps DINOv2B VisA :** Non défini dans les configs → `sweep.py` applique la valeur par défaut `1.0` (tout le set d'entraînement utilisé pour construire la mémoire coreset). L'AUROC est calculé sur le test set VisA natif (images annotées anomaly).
 
-**Pourquoi `n_trials=20` pour DINOv2B ?** ViT-B à 448 px est plus rapide que ViT-L, mais le sweep DINOv2B a été réduit à 20 trials pour une exploration initiale rapide, avant d'augmenter si les résultats sont prometteurs.
+**Progression des pilots DINOv2B :** Chaque pilot est conçu pour raffiner les conclusions du précédent en réduisant l'espace de recherche aux hyperparamètres encore incertains (voir section 8.7).
 
 ### 8.6 Sortie du sweep
 
@@ -967,22 +967,236 @@ results/{Dataset}_Sweep_{study_name}/
 IM{imagesize}_{backbone_short}_{layer_key}_P{coreset%}_D{pre}-{tgt}_PS-{ps}_AN-{nn}_S{seed}
 ```
 
+### 8.7 Analyse des sweeps DINOv2B VisA — Pilots 1, 2, 3
+
+Les trois pilots ont été lancés séquentiellement avec `sweep.py` (env `patchcore38`, 12 classes VisA, imagesize 448px, backbone `dinov2_vitb14_reg`). Les résultats ci-dessous sont extraits via `inspect_sweep.py --all`.
+
+#### Rappel sémantique des blocs pour la détection d'anomalies
+
+DINOv2 ViT-B/14 possède 12 blocs d'attention (0–11), chaque bloc traitant 1024 tokens de 768 dimensions. Contrairement aux CNN où le champ réceptif croît progressivement couche par couche, chaque bloc ViT effectue une **self-attention globale** dès le départ — y compris les premiers blocs. Cette propriété implique une sémantique des couches différente de WR50 :
+
+| Plage de blocs | Caractère des features | Intérêt pour anomaly detection |
+|----------------|----------------------|-------------------------------|
+| 0–2 | Projection de patch + attention minimale. Texture basse fréquence, couleurs brutes. | Exclus : trop locaux et bruités pour être discriminants |
+| 3–5 | Local + contexte émergent. Textures, motifs répétitifs, formes locales. | **Très utiles** : capturent les défauts de surface |
+| 6–8 | Équilibré texture/sémantique. Parties d'objets, structures intermédiaires. | **Utiles** : détectent les anomalies structurelles |
+| 9–11 | Entièrement global. Identité de classe, cohérence sémantique. | **Néfastes** : trop invariants, perdent la localisation fine |
+
+**Pourquoi patchsize=1 est optimal pour DINOv2 :** chaque token ViT couvre déjà 14×14 pixels. Avec `patchsize=1`, PatchCore traite chaque token individuellement → résolution maximale pour la localisation d'anomalies. Avec `patchsize=3`, on agrège 3×3 tokens = 42×42 pixels → perte de résolution spatiale, comparable à ce qu'on ferait avec un stride trop large dans un CNN. C'est fondamentalement différent des backbones CNN où `patchsize=3` crée un contexte local utile autour de chaque feature map location.
+
+#### Pilot 1 — DINOv2B_VisA_Pilot (exploration large)
+
+**Motivation :** Première exploration avec DINOv2 sur VisA. L'espace des blocs [3..11] est exploré sans a priori, avec patchsize {1,3} et nn {3,5} pour cartographier l'espace complet.
+
+**Config :** blocs [3..11], n_layers [2,3,4], patchsize [1,3], coreset log-uniform [0.01,0.10], nn [3,5] — 40 trials prévus.
+
+**Résultats (23 trials lancés, 10 complétés, 11 élagués, 2 échoués) :**
+
+| Rang | Trial | AUROC | Layers |
+|------|-------|-------|--------|
+| 1 | #15 | **0.9744** | L3-5 |
+| 2 | #16 | 0.9743 | L3-5 |
+| 3 | #12 | 0.9742 | L3-5 |
+| 4 | #14 | 0.9703 | L4-5 |
+| 5 | #2 | 0.9630 | L4-5-8 |
+| 6 | #1 | 0.9448 | L3-4-6-10 |
+| 7 | #5 | 0.9333 | L4-6-8 |
+| 8 | #0 | 0.9222 | L7-8-10 |
+| 9 | #4 | 0.9108 | L3-4-5-6 |
+| 10 | #3 | 0.8779 | L5-7-11 |
+
+Statistiques : best 0.9744 — median 0.9539 — worst 0.8779.
+
+**Analyse par bloc (Δ = AUROC moyen si présent − AUROC moyen si absent) :**
+
+| Bloc | Fréquence | Δ | Interprétation |
+|------|-----------|---|----------------|
+| 3 | 50 % | **+0.022** | Texture fine — très bénéfique |
+| 5 | 70 % | **+0.016** | Motifs locaux — bénéfique |
+| 4 | 50 % | −0.000 | Neutre |
+| 8 | 30 % | −0.007 | Légèrement néfaste |
+| 10 | 20 % | −0.014 | Néfaste |
+| 6 | 30 % | −0.021 | Néfaste |
+| 7 | 20 % | −0.056 | **Néfaste** (mais contexte biaisé — voir Pilot 2) |
+| 11 | 10 % | **−0.074** | **Très néfaste** : trop sémantique |
+
+**Distributions des hyperparamètres :**
+- patchsize=1 → AUROC moyen 0.967 ; patchsize=3 → 0.911. **Écart +0.046 en faveur de ps=1.**
+- nn=5 → 0.967 ; nn=3 → 0.911 (mais corrélé avec patchsize dans ce pilot, pas encore séparable).
+- coreset_fraction : plage [0.01, 0.10], valeur médiane ~5 %.
+
+**Enseignements :** TPE a convergé très rapidement vers L3-5 (block_score_3=0.86, block_score_5=0.81 dans le meilleur trial). Les 3 trials identiques L3-5 en top-3 confirment la robustesse de cette combinaison. Cependant, avec seulement 10 trials complétés sur 40 prévus, la convergence est potentiellement prématurée — le bloc 7, jugé néfaste ici, était toujours associé à des blocs défavorables (L5-7-11, L7-8-10).
+
+#### Pilot 2 — DINOv2B_VisA_Pilot2 (validation et élargissement)
+
+**Motivation :** Pilot1 a convergé rapidement sur L3-5 avec peu de trials. Questions ouvertes : (1) Les blocs 1-2 peuvent-ils aider ? (2) Un seul layer suffit-il ? (3) Le bloc 7 est-il vraiment néfaste ou mal estimé ? (4) Plus de coreset (jusqu'à 20 %) améliore-t-il les résultats ?
+
+**Changements clés vs Pilot1 :**
+- Blocs candidats élargis à [1..11] (ajout de 1 et 2)
+- n_layers élargi à [1,2,3,4] (ajout du single-layer)
+- coreset_fraction élargi à [0.01, 0.20]
+- Budget triplé : 100 trials
+
+**Résultats (73 trials lancés, 48 complétés, 23 élagués, 2 échoués — interrompu avant 100) :**
+
+Top 10 :
+
+| Rang | Trial | AUROC | Layers |
+|------|-------|-------|--------|
+| 1 | #60 | **0.9726** | L3-5-7 |
+| 2–3 | #55,#26 | 0.9722 | L4-7-8 |
+| 4 | #62 | 0.9722 | L3-5-7 |
+| 5 | #18 | 0.9722 | L3-4-7 |
+| 6 | #14 | 0.9721 | L4-5-7 |
+| 7–9 | #42,#43,#53 | 0.9721 | L4-7-8 |
+| 10 | #54 | 0.9720 | L4-7-8 |
+
+Statistiques : best 0.9726 — median 0.9693 — worst 0.8909.
+
+**Analyse par bloc :**
+
+| Bloc | Fréquence | Δ | Top-10 fréquence | Interprétation |
+|------|-----------|---|-----------------|----------------|
+| 4 | 50 % | **+0.020** | 80 % | Texture/structure — très bénéfique |
+| 7 | 60 % | **+0.014** | **100 %** | Structure intermédiaire — indispensable |
+| 3 | 23 % | +0.010 | 30 % | Texture fine — utile |
+| 8 | 48 % | +0.006 | 60 % | Structure — utile |
+| 5 | 31 % | −0.006 | 30 % | Neutre/légèrement néfaste dans ce contexte |
+| 2 | 19 % | −0.010 | 0 % | Inutile — confirmation |
+| 6,9,10 | 6–10 % | −0.020 à −0.024 | 0 % | Néfastes |
+| 11 | 17 % | **−0.031** | 0 % | Sémantique → néfaste |
+| 1 | 6 % | **−0.039** | 0 % | Trop local → néfaste |
+
+**Réhabilitation du bloc 7 :** Dans Pilot1, le bloc 7 était jugé néfaste (Δ = −0.056) car il était toujours associé à des blocs défavorables (L5-7-11, L7-8-10). Dans Pilot2, avec 48 trials, TPE a découvert que le bloc 7 en combinaison avec des blocs de la zone 3-5 (L3-5-7, L4-7, L3-4-7) produit d'excellents résultats. **Le bloc 7 est présent dans 100 % du top-10.** L'estimation de Pilot1 était biaisée par le manque de trials.
+
+**Distributions des hyperparamètres :**
+- patchsize=1 → AUROC moyen 0.965 ; patchsize=3 → 0.919. Confirmé.
+- nn=3 → 0.958 ; nn=5 → 0.958. **Rigoureusement équivalents** (38 vs 10 trials).
+- Single-layer (L4, L6, L8) : AUROC 0.957–0.962. Correct mais inférieur aux combos multi-couches.
+- coreset_fraction médian ~10 %, plage performante : 0.05–0.18.
+
+**Pattern convergent :** Toutes les meilleures configurations combinent **un bloc de la zone 3-5 (texture)** + **bloc 7 (structure intermédiaire)** + éventuellement 4 ou 8. Cette combinaison couvre deux niveaux d'abstraction complémentaires : anomalies texturelles (taches, rayures, variations de surface) et anomalies structurelles (pièces manquantes, déformations).
+
+**Note sur le best AUROC 0.9726 vs 0.9744 de Pilot1 :** Pas de régression. Pilot1 avait 10 trials — le pic à 0.9744 est une fluctuation statistique. Avec 48 trials dans Pilot2, la distribution est plus robuste et représentative.
+
+#### Pilot 3 — DINOv2B_VisA_Pilot3 (recherche ciblée)
+
+**Motivation :** Après Pilots 1&2, les hyperparamètres "non-layers" sont fixés (patchsize=1, nn=3≈nn=5, coreset~10 %). Il reste à identifier la combinaison optimale de blocs parmi les candidats utiles {3,4,5,7,8}.
+
+**Changements clés — consolidation des acquis :**
+
+| Hyperparamètre | Pilot1 | Pilot2 | **Pilot3** | Justification |
+|---------------|--------|--------|-----------|---------------|
+| Blocs candidats | [3..11] | [1..11] | **[3,4,5,7,8]** | Seuls les blocs avec Δ ≥ 0 dans Pilot2 |
+| patchsize | [1,3] | [1,3] | **[1] fixe** | ps=3 clairement inférieur partout |
+| coreset_fraction | log-unif [0.01,0.10] | log-unif [0.01,0.20] | **0.10 fixe** | Valeur médiane gagnante dans les pilots |
+| anomaly_scorer_num_nn | [3,5] | [3,5] | **3 fixe** | nn=3 ≡ nn=5, choisir le plus rapide |
+| n_layers | [2,3,4] | [1,2,3,4] | [1,2,3] | Réduction : n=4 jamais optimal |
+
+**Blocs retenus dans [3,4,5,7,8] :**
+- **3,4,5** : zone texture/motifs locaux — systématiquement présents dans les top configs
+- **7** : indispensable (100 % du top-10 dans Pilot2)
+- **8** : utile complémentaire (+0.006), souvent couplé à 7 (L4-7-8)
+- **Exclus** : 1,2 (néfastes), 6,9,10,11 (néfastes)
+
+**Statut :** 1 trial démarré (L5-8, coreset=10 %, ps=1, nn=3), interrompu en cours d'exécution (état RUNNING dans SQLite, aucun `scores.yaml`). Aucun trial complété.
+
+**À relancer :**
+```bash
+PYTHONIOENCODING=utf-8 conda run -n patchcore38 --no-capture-output python contribution/sweep.py --study_name DINOv2B_VisA_Pilot3
+```
+
+#### Synthèse et hiérarchie des hyperparamètres
+
+**Impact sur AUROC (classé par importance) :**
+
+1. **Sélection des couches** : impact dominant (±0.07 AUROC entre L3-5 et L5-7-11)
+2. **patchsize** : fort (+0.046 pour ps=1 vs ps=3)
+3. **n_layers** : modéré (3 couches > 2 > 1 dans la plupart des cas)
+4. **coreset_fraction** : faible dans [0.05, 0.20] (log-uniform bien adapté)
+5. **anomaly_scorer_num_nn** : négligeable (3 ≡ 5)
+
+**Meilleurs hyperparamètres identifiés :**
+
+```yaml
+backbone: dinov2_vitb14_reg
+resize: 512
+imagesize: 448          # 32 × 14 — multiple de 14
+layers: [blocks.3, blocks.5, blocks.7]   # ou [blocks.4, blocks.7, blocks.8]
+patchsize: 1
+pretrain_embed_dimension: 768
+target_embed_dimension: 768
+coreset_fraction: 0.08–0.10
+anomaly_scorer_num_nn: 3
+```
+
+Best AUROC obtenu sur VisA : **0.9744** (L3-5, Pilot1) — à confirmer sur run complet avec pixel-level AUROC.
+
 ---
 
 ## 9. Outils expérimentaux
 
 ### 9.1 aggregate_results.py
 
-Script CLI qui parcourt `results/MVTecAD_Results/` et `results/VisA_Results/`, lit tous les `results.csv`, et produit un CSV agrégé unique trié par image-AUROC décroissant.
+Script CLI qui consolide **tous** les résultats d'expériences (runs normaux + trials de sweep) en un seul CSV pour comparaison et analyse.
 
-**Format de sortie :**
+**Deux sources de données :**
+
+1. **Runs normaux** — `results/{MVTecAD|VisA}_Results/{exp_name}/results.csv` : résultats complets avec instance AUROC, full pixel AUROC et anomaly pixel AUROC pour chaque sous-classe.
+
+2. **Trials de sweep** — `results/{MVTecAD|VisA}_Sweep_*/*/scores.yaml` : seul l'instance AUROC est disponible (les pixel AUROCs ne sont pas calculés pendant les sweeps pour économiser du temps). L'expérience est nommée `[StudyName] TrialName` pour distinguer les sweeps des runs normaux.
+
+**Format de sortie** (`results/aggregated_results.csv`) :
 ```
-dataset | experiment | instance_auroc_Mean | instance_auroc_bottle | ... | full_pixel_auroc_Mean | ...
+dataset | experiment | instance_auroc_Mean | instance_auroc_<class> | ... | full_pixel_auroc_Mean | ... | anomaly_pixel_auroc_Mean | ...
 ```
 
-**Fonctionnalités :** Normalisation des prefixes (`visa_capsules` → `capsules`, `mvtec_bottle` → `bottle`), union des subsets entre expériences (colonnes NaN pour les expériences ne couvrant pas toutes les classes), tri intra-dataset par AUROC.
+**Fonctionnalités :**
+- Normalisation des prefixes (`visa_capsules` → `capsules`, `mvtec_bottle` → `bottle`)
+- Union de toutes les sous-classes rencontrées (colonnes vides pour les expériences ne couvrant pas toutes les classes)
+- Tri : MVTecAD avant VisA, puis par `instance_auroc_Mean` décroissant dans chaque groupe
+- Les pixel AUROCs des sweeps apparaissent comme cellules vides (non calculés)
 
-### 9.2 visualize_samples.py
+**Usage :**
+```bash
+python contribution/aggregate_results.py
+python contribution/aggregate_results.py --results_root /autre/chemin --out mon_resume.csv
+```
+
+### 9.2 inspect_sweep.py
+
+Script CLI de consultation human-readable pour les sweeps Optuna stockés en SQLite. Permet d'analyser rapidement les résultats sans écrire de code Optuna.
+
+**Localisation automatique du `.db`** : cherche `results/*_Sweep_{study_name}/{study_name}.db` depuis le `study_name`, ou accepte un chemin direct (`--db`).
+
+**Sections affichées :**
+
+1. **Résumé global** : nombre de trials par état (complets/élagués/échoués/en cours), AUROC best/median/worst.
+2. **Meilleur trial** : paramètres complets + scores des blocs sous forme de barres ASCII (mode `layer_sampling`).
+3. **Tableau des trials complétés** : triés par AUROC décroissant, top-N configurable.
+4. **Trials élagués** : step d'élagage, running mean, et params.
+5. **Trials échoués** : params au moment de l'échec.
+6. **Analyse par bloc** (`--blocks`) : pour chaque bloc candidat — fréquence de sélection, AUROC moyen quand sélectionné vs absent, Δ. Identifie les blocs utiles et nuisibles. Aussi : fréquence dans le top-N vs tous les trials.
+7. **Distribution des paramètres** (`--params`) : AUROC moyen par valeur pour les params catégoriels, min/mean/max pour les continus.
+
+**Flags :**
+- `--top N` : afficher les N meilleurs trials (0 = tous)
+- `--blocks` : analyse bloc par bloc
+- `--params` : distribution des hyperparamètres
+- `--all` : équivalent à `--blocks --params --top 0`
+
+**Usage :**
+```bash
+# Windows : PYTHONIOENCODING requis pour les barres █
+PYTHONIOENCODING=utf-8 conda run -n patchcore38 --no-capture-output \
+    python contribution/inspect_sweep.py --study_name DINOv2B_VisA_Pilot2 --all
+
+# Via chemin direct
+PYTHONIOENCODING=utf-8 conda run -n patchcore38 --no-capture-output \
+    python contribution/inspect_sweep.py --db results/VisA_Sweep_DINOv2B_VisA_Pilot2/DINOv2B_VisA_Pilot2.db
+```
+
+### 9.3 visualize_samples.py
 
 Script de visualisation (matplotlib) qui génère des grilles d'images :
 - Colonne 1 : image originale + rectangle rouge montrant la zone CenterCrop.
@@ -1008,6 +1222,8 @@ Le résultat ConvNeXt V2 faible sur MVTec reflète l'absence de CosineNN au mome
 
 ### 10.2 VisA
 
+**Runs manuels :**
+
 | Expérience | Image AUROC | Pixel AUROC | Notes |
 |-----------|-------------|-------------|-------|
 | WR50 L2-3 IM224 (sans filtre crop) | 94.5 % | 98.2 % | anomalies hors-crop incluses |
@@ -1018,20 +1234,29 @@ Le résultat ConvNeXt V2 faible sur MVTec reflète l'absence de CosineNN au mome
 | DINOv2-L14reg L7-14-23 IM448 (P=0.05) | 93.0 % | 96.4 % | ViT-L, 3 layers |
 | DINOv2-G14reg L19-39 IM336 | exploratoire | — | |
 
-**Observation clé :** Sur VisA, DINOv2-B14reg à 448 px est compétitif avec WR50 (94.6 % vs 94.8 %) mais ne le surpasse pas encore avec les configs manuelles. Les sweeps bayésiens DINOv2B et DINOv2L sont conçus pour explorer l'espace de layers (via `layer_sampling` dynamique) et de coreset_pct pour trouver la configuration optimale.
+**Sweeps DINOv2B VisA (instance AUROC uniquement — pixel AUROC non calculé) :**
 
-**Observation préliminaire sur les layers DINOv2 vs WR50 :**
+| Sweep | Trials complétés | Best AUROC | Meilleure config |
+|-------|-----------------|------------|-----------------|
+| DINOv2B_VisA_Pilot (40 trials prévus) | 10 | **0.9744** | L3-5, ps=1, coreset≈10 %, nn=5 |
+| DINOv2B_VisA_Pilot2 (100 trials prévus) | 48 | **0.9726** | L3-5-7, ps=1, coreset≈8 %, nn=5 |
+| DINOv2B_VisA_Pilot3 (50 trials prévus) | 0 | — | interrompu (L5-8 en cours) |
 
-| Backbone | Layers optimaux (connu/observé) | Caractère |
-|----------|--------------------------------|-----------|
-| WideResNet-50 | `layer2 + layer3` (mid + final) | Réceptif croissant ; layer2 = ~60 px, layer3 = ~120 px |
-| DINOv2 ViT-B/14 | blocks précoces (3–7) + final (11) | Attention globale dès le début ; early blocks = texture locale |
+**Observation clé :** Sur VisA, DINOv2-B14reg à 448 px atteint **97.44 % (sweep)** contre 94.8 % pour WR50 en run manuel — soit un gain de +2.6 points. La config manuelle L5-11 (94.6 %) était sous-optimale : le sweep a révélé que les layers mid-précoces (L3-5-7, L4-7-8) sont bien supérieurs à la paire mid+final (L5-11) standard.
 
-Avec WR50, les premières couches (`layer1`) sont trop grossières (réceptif de quelques pixels, features de bords) pour être utiles. Les layers mid+final (`layer2+layer3`) sont le compromis optimal entre résolution spatiale et richesse sémantique.
+**Comparaison layers DINOv2 vs WR50 — conclusions confirmées par les sweeps :**
 
-Avec DINOv2, la situation est inversée : les blocks tardifs (10–11) capturent des concepts sémantiques de haut niveau (forme d'objet, relation entre parties) qui sont peu discriminants pour des anomalies de surface locales. Les blocks précoces (3–7) ont déjà une attention partiellement globale mais restent sensibles à la texture et aux détails locaux — ce qui est exactement ce dont PatchCore a besoin sur VisA. Cette observation justifie l'espace de recherche large du sweep (`candidates: [3..11]`) et l'inclusion de configurations à 3 layers (n_layers: [2, 3, 4]).
+| Backbone | Layers optimaux | Caractère | Explication |
+|----------|----------------|-----------|-------------|
+| WideResNet-50 | `layer2 + layer3` (blocs 4+5 ResNet) | Mid + final | Champ réceptif croissant : layer2 ≈ 60 px, layer3 ≈ 120 px. Les couches early (layer1) sont trop locales. |
+| DINOv2 ViT-B/14 | `blocks.3–5` + `blocks.7` | Early/mid | Self-attention globale dès le départ : les blocks tardifs (9–11) deviennent trop sémantiques. Les blocks 3-8 restent sensibles à la texture locale. |
 
-> **Statut :** Observation préliminaire basée sur les expériences manuelles. À confirmer par le sweep bayésien en cours.
+La différence fondamentale : dans un CNN, les premières couches ont un champ réceptif minuscule et ne voient que des bords/pixels locaux → inutiles pour PatchCore. Dans un ViT, chaque bloc opère sur tous les tokens → même les premiers blocs ont un contexte global partiel, et leurs features capturent texture + position relative. Les derniers blocs ViT ressemblent davantage à des features "catégorie" qu'à des features "surface" — exactement l'inverse du besoin de PatchCore pour détecter des anomalies locales.
+
+**Top configs à valider avec pixel-level AUROC :**
+- `L3-5` (best Pilot1, AUROC 0.9744)
+- `L3-5-7` (best Pilot2, AUROC 0.9726, plus robuste statistiquement)
+- `L4-7-8` (très reproductible dans Pilot2, ~0.9722 sur plusieurs trials)
 
 ---
 

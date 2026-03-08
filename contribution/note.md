@@ -29,7 +29,7 @@ foreach ($d in $datasets_mvtec) {
     $dataset_mvtec_flags += @('-d', $d)
 }
 
-$datapath_visa = "C:\Users\trloj\Code\VisA_20220922"
+$datapath_visa = "C:\Users\cedri\PythonProject\VisA_20220922"
 
 $datasets_visa = @('candle','capsules','cashew','chewinggum','fryum','macaroni1','macaroni2','pcb1','pcb2','pcb3','pcb4','pipe_fryum')
 
@@ -65,14 +65,14 @@ python bin/run_patchcore.py `
 ## sweep
 
 # All settings are in contribution/sweep_configs/{study_name}.yaml
-allow for resume of sweep after crashes
+# Reprend automatiquement si interrompu (SQLite garde les trials complétés)
 python contribution/sweep.py --study_name DINOv2B_VisA_Pilot2
 
-# Tout afficher, tous les trials
-python contribution/inspect_sweep.py --study_name DINOv2B_VisA_Pilot2 --all
+# Tout afficher, tous les trials (PYTHONIOENCODING requis sur Windows pour les barres █)
+PYTHONIOENCODING=utf-8 conda run -n patchcore38 --no-capture-output python contribution/inspect_sweep.py --study_name DINOv2B_VisA_Pilot2 --all
 
 # Pointer directement vers un .db
-python contribution/inspect_sweep.py --db results/VisA_Sweep_DINOv2B_VisA_Pilot2/DINOv2B_VisA_Pilot2.db
+PYTHONIOENCODING=utf-8 conda run -n patchcore38 --no-capture-output python contribution/inspect_sweep.py --db results/VisA_Sweep_DINOv2B_VisA_Pilot2/DINOv2B_VisA_Pilot2.db
 
 ## Aggregate_results
 python contribution/aggregate_results.py
