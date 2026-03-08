@@ -1,0 +1,27 @@
+resize: 512
+imagesize: 448
+layer_key: L4-7-8
+layers_to_extract_from:
+- blocks.4
+- blocks.7
+- blocks.8
+pretrain_embed_dimension: 768
+target_embed_dimension: 768
+patchsize: 1
+coreset_fraction: 0.1
+anomaly_scorer_num_nn: 3
+backbone: dinov2_vitb14_reg
+classes:
+- candle
+- capsules
+- cashew
+- chewinggum
+- fryum
+- macaroni1
+- macaroni2
+- pcb1
+- pcb2
+- pcb3
+- pcb4
+- pipe_fryum
+seed: 0

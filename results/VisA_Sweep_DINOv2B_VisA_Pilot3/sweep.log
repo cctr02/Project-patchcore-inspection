@@ -10,3 +10,761 @@
 09:51:12  INFO      Already completed: 0 trial(s). Running 50 more.
 09:51:12  INFO      [Trial 0] IM448_DINOv2B14reg_L5-8_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
 09:51:12  INFO        -> candle
+09:51:13  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+09:51:14  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+09:56:26  INFO           AUROC = 0.9492
+09:56:26  INFO        -> capsules
+09:56:27  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+09:56:27  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+09:58:43  INFO           AUROC = 0.9471
+09:58:43  INFO        -> cashew
+09:58:45  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+09:58:45  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:00:34  INFO           AUROC = 0.9291
+10:00:34  INFO        -> chewinggum
+10:00:36  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:00:36  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:02:26  INFO           AUROC = 0.9940
+10:02:26  INFO        -> fryum
+10:02:28  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:02:28  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:04:17  INFO           AUROC = 0.9612
+10:04:17  INFO        -> macaroni1
+10:04:18  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:04:18  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:09:17  INFO           AUROC = 0.9603
+10:09:17  INFO        -> macaroni2
+10:09:18  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:09:18  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:14:00  INFO           AUROC = 0.9341
+10:14:00  INFO        -> pcb1
+10:14:01  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:14:02  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:19:02  INFO           AUROC = 0.9654
+10:19:02  INFO        -> pcb2
+10:19:04  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:19:04  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:23:56  INFO           AUROC = 0.9652
+10:23:56  INFO        -> pcb3
+10:23:58  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:23:58  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:28:46  INFO           AUROC = 0.9959
+10:28:46  INFO        -> pcb4
+10:28:48  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:28:48  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:33:46  INFO           AUROC = 0.9816
+10:33:46  INFO        -> pipe_fryum
+10:33:48  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:33:48  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:35:37  INFO           AUROC = 0.9958
+10:35:37  INFO      [Trial 0] Mean AUROC = 0.9649
+10:35:37  INFO      [Trial 1] IM448_DINOv2B14reg_L5_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+10:35:37  INFO        -> candle
+10:35:38  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:35:38  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:40:31  INFO           AUROC = 0.9513
+10:40:31  INFO        -> capsules
+10:40:33  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:40:33  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:42:45  INFO           AUROC = 0.9864
+10:42:45  INFO        -> cashew
+10:42:46  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:42:47  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:44:34  INFO           AUROC = 0.9326
+10:44:34  INFO        -> chewinggum
+10:44:35  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:44:35  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:46:23  INFO           AUROC = 0.9753
+10:46:23  INFO        -> fryum
+10:46:25  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:46:25  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:48:12  INFO           AUROC = 0.9735
+10:48:12  INFO        -> macaroni1
+10:48:13  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:48:13  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:53:05  INFO           AUROC = 0.9604
+10:53:05  INFO        -> macaroni2
+10:53:07  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:53:07  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+10:57:43  INFO           AUROC = 0.9900
+10:57:43  INFO        -> pcb1
+10:57:44  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+10:57:45  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:02:40  INFO           AUROC = 0.9707
+11:02:40  INFO        -> pcb2
+11:02:41  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:02:41  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:07:33  INFO           AUROC = 0.9653
+11:07:33  INFO        -> pcb3
+11:07:35  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:07:35  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:12:23  INFO           AUROC = 0.9951
+11:12:24  INFO        -> pcb4
+11:12:25  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:12:25  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:17:22  INFO           AUROC = 0.9810
+11:17:23  INFO        -> pipe_fryum
+11:17:24  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:17:24  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:19:10  INFO           AUROC = 0.9968
+11:19:11  INFO      [Trial 1] Mean AUROC = 0.9732
+11:19:11  INFO      [Trial 2] IM448_DINOv2B14reg_L3-4_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+11:19:11  INFO        -> candle
+11:19:12  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:19:12  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:24:05  INFO           AUROC = 0.9480
+11:24:05  INFO        -> capsules
+11:24:07  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:24:07  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:26:19  INFO           AUROC = 0.9966
+11:26:19  INFO        -> cashew
+11:26:21  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:26:21  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:28:08  INFO           AUROC = 0.8419
+11:28:08  INFO        -> chewinggum
+11:28:09  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:28:09  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:29:57  INFO           AUROC = 0.9665
+11:29:57  INFO        -> fryum
+11:29:59  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:29:59  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:31:45  INFO           AUROC = 0.9658
+11:31:45  INFO        -> macaroni1
+11:31:47  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:31:47  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:36:39  INFO           AUROC = 0.9775
+11:36:39  INFO        -> macaroni2
+11:36:41  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:36:41  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:41:18  INFO           AUROC = 0.9900
+11:41:18  INFO        -> pcb1
+11:41:19  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:41:20  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:46:17  INFO           AUROC = 0.9736
+11:46:17  INFO        -> pcb2
+11:46:18  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:46:18  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:51:11  INFO           AUROC = 0.9722
+11:51:11  INFO        -> pcb3
+11:51:13  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:51:13  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+11:56:02  INFO           AUROC = 0.9933
+11:56:02  INFO        -> pcb4
+11:56:03  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+11:56:03  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:01:02  INFO           AUROC = 0.9819
+12:01:02  INFO        -> pipe_fryum
+12:01:03  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:01:04  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:02:50  INFO           AUROC = 0.9949
+12:02:50  INFO      [Trial 2] Mean AUROC = 0.9668
+12:02:51  INFO      [Trial 3] IM448_DINOv2B14reg_L3-8_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+12:02:51  INFO        -> candle
+12:02:52  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:02:52  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:07:47  INFO           AUROC = 0.9446
+12:07:47  INFO        -> capsules
+12:07:48  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:07:48  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:10:03  INFO           AUROC = 0.9525
+12:10:03  INFO        -> cashew
+12:10:04  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:10:04  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:11:53  INFO           AUROC = 0.9293
+12:11:53  INFO        -> chewinggum
+12:11:55  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:11:55  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:13:44  INFO           AUROC = 0.9879
+12:13:44  INFO        -> fryum
+12:13:46  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:13:46  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:15:35  INFO           AUROC = 0.9640
+12:15:35  INFO        -> macaroni1
+12:15:36  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:15:36  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:20:33  INFO           AUROC = 0.9591
+12:20:33  INFO        -> macaroni2
+12:20:34  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:20:34  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:25:15  INFO           AUROC = 0.9198
+12:25:15  INFO        -> pcb1
+12:25:17  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:25:17  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:30:17  INFO           AUROC = 0.9657
+12:30:17  INFO        -> pcb2
+12:30:19  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:30:19  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:35:15  INFO           AUROC = 0.9676
+12:35:15  INFO        -> pcb3
+12:35:17  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:35:17  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:40:09  INFO           AUROC = 0.9954
+12:40:09  INFO        -> pcb4
+12:40:11  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:40:11  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:45:14  INFO           AUROC = 0.9814
+12:45:14  INFO        -> pipe_fryum
+12:45:15  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:45:16  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:47:04  INFO           AUROC = 0.9953
+12:47:04  INFO      [Trial 3] Mean AUROC = 0.9635
+12:47:04  INFO      [Trial 4] IM448_DINOv2B14reg_L7-8_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+12:47:04  INFO        -> candle
+12:47:06  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:47:06  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:52:02  INFO           AUROC = 0.9501
+12:52:02  INFO        -> capsules
+12:52:04  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:52:04  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:54:17  INFO           AUROC = 0.9591
+12:54:17  INFO        -> cashew
+12:54:18  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:54:18  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:56:06  INFO           AUROC = 0.9341
+12:56:06  INFO        -> chewinggum
+12:56:07  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:56:07  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:57:56  INFO           AUROC = 0.9868
+12:57:56  INFO        -> fryum
+12:57:57  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:57:58  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+12:59:45  INFO           AUROC = 0.9623
+12:59:45  INFO        -> macaroni1
+12:59:46  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+12:59:46  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:04:41  INFO           AUROC = 0.9648
+13:04:41  INFO        -> macaroni2
+13:04:42  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:04:42  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:09:22  INFO           AUROC = 0.9414
+13:09:22  INFO        -> pcb1
+13:09:23  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:09:24  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:14:23  INFO           AUROC = 0.9684
+13:14:23  INFO        -> pcb2
+13:14:24  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:14:24  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:19:19  INFO           AUROC = 0.9660
+13:19:19  INFO        -> pcb3
+13:19:20  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:19:20  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:24:11  INFO           AUROC = 0.9953
+13:24:11  INFO        -> pcb4
+13:24:12  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:24:12  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:29:13  INFO           AUROC = 0.9806
+13:29:13  INFO        -> pipe_fryum
+13:29:14  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:29:14  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:31:02  INFO           AUROC = 0.9945
+13:31:02  INFO      [Trial 4] Mean AUROC = 0.9670
+13:31:02  INFO      [Trial 5] IM448_DINOv2B14reg_L4-5-7_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+13:31:02  INFO        -> candle
+13:31:03  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:31:04  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:35:58  INFO           AUROC = 0.9515
+13:35:58  INFO        -> capsules
+13:36:00  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:36:00  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:38:13  INFO           AUROC = 0.9673
+13:38:14  INFO        -> cashew
+13:38:15  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:38:15  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:40:03  INFO           AUROC = 0.9440
+13:40:03  INFO        -> chewinggum
+13:40:04  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:40:05  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:41:53  INFO           AUROC = 0.9796
+13:41:53  INFO        -> fryum
+13:41:55  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:41:55  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:43:42  INFO           AUROC = 0.9616
+13:43:42  INFO        -> macaroni1
+13:43:44  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:43:44  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:48:38  INFO           AUROC = 0.9741
+13:48:38  INFO        -> macaroni2
+13:48:40  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:48:40  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:53:20  INFO           AUROC = 0.9801
+13:53:20  INFO        -> pcb1
+13:53:21  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:53:22  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+13:58:21  INFO           AUROC = 0.9790
+13:58:21  INFO        -> pcb2
+13:58:23  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+13:58:23  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:03:17  INFO           AUROC = 0.9560
+14:03:18  INFO        -> pcb3
+14:03:19  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:03:19  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:08:10  INFO           AUROC = 0.9958
+14:08:10  INFO        -> pcb4
+14:08:12  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:08:12  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:13:13  INFO           AUROC = 0.9820
+14:13:13  INFO        -> pipe_fryum
+14:13:14  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:13:15  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:15:02  INFO           AUROC = 0.9950
+14:15:02  INFO      [Trial 5] Mean AUROC = 0.9722
+14:15:03  INFO      [Trial 6] IM448_DINOv2B14reg_L3-4-7_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+14:15:03  INFO        -> candle
+14:15:04  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:15:04  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:19:59  INFO           AUROC = 0.9569
+14:19:59  INFO        -> capsules
+14:20:01  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:20:01  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:22:15  INFO           AUROC = 0.9716
+14:22:15  INFO        -> cashew
+14:22:16  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:22:16  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:24:04  INFO           AUROC = 0.9351
+14:24:04  INFO        -> chewinggum
+14:24:05  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:24:05  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:25:54  INFO           AUROC = 0.9820
+14:25:54  INFO        -> fryum
+14:25:56  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:25:56  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:27:43  INFO           AUROC = 0.9649
+14:27:43  INFO        -> macaroni1
+14:27:45  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:27:45  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:32:40  INFO           AUROC = 0.9749
+14:32:40  INFO        -> macaroni2
+14:32:42  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:32:42  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:37:22  INFO           AUROC = 0.9688
+14:37:22  INFO        -> pcb1
+14:37:23  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:37:24  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:42:23  INFO           AUROC = 0.9777
+14:42:23  INFO        -> pcb2
+14:42:25  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:42:25  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:47:20  INFO           AUROC = 0.9593
+14:47:20  INFO        -> pcb3
+14:47:22  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:47:22  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:52:12  INFO           AUROC = 0.9952
+14:52:13  INFO        -> pcb4
+14:52:14  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:52:14  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:57:15  INFO           AUROC = 0.9805
+14:57:15  INFO        -> pipe_fryum
+14:57:16  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:57:17  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+14:59:04  INFO           AUROC = 0.9937
+14:59:04  INFO      [Trial 6] Mean AUROC = 0.9717
+14:59:04  INFO      [Trial 7] IM448_DINOv2B14reg_L7_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+14:59:04  INFO        -> candle
+14:59:06  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+14:59:06  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:04:01  INFO           AUROC = 0.9455
+15:04:01  INFO        -> capsules
+15:04:03  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:04:03  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:06:17  INFO           AUROC = 0.9549
+15:06:17  INFO        -> cashew
+15:06:18  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:06:18  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:08:07  INFO           AUROC = 0.9078
+15:08:07  INFO        -> chewinggum
+15:08:09  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:08:09  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:09:59  INFO           AUROC = 0.9760
+15:09:59  WARNING     [PRUNED] after 4 class(es)  mean=0.9461  median@step4=0.9575  Δ=-0.0115  (refs=7)
+15:09:59  INFO      [Trial 8] IM448_DINOv2B14reg_L4-7-8_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+15:09:59  INFO        -> candle
+15:10:01  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:10:01  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:14:59  INFO           AUROC = 0.9593
+15:14:59  INFO        -> capsules
+15:15:00  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:15:01  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:17:15  INFO           AUROC = 0.9607
+15:17:15  INFO        -> cashew
+15:17:17  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:17:17  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:19:05  INFO           AUROC = 0.9578
+15:19:05  INFO        -> chewinggum
+15:19:06  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:19:06  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:20:55  INFO           AUROC = 0.9940
+15:20:55  INFO        -> fryum
+15:20:57  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:20:57  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:22:46  INFO           AUROC = 0.9626
+15:22:46  INFO        -> macaroni1
+15:22:47  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:22:47  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:27:45  INFO           AUROC = 0.9664
+15:27:45  INFO        -> macaroni2
+15:27:46  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:27:47  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:32:29  INFO           AUROC = 0.9414
+15:32:29  INFO        -> pcb1
+15:32:30  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:32:30  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:37:33  INFO           AUROC = 0.9745
+15:37:33  INFO        -> pcb2
+15:37:34  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:37:34  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:42:31  INFO           AUROC = 0.9604
+15:42:31  INFO        -> pcb3
+15:42:32  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:42:32  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:47:26  INFO           AUROC = 0.9967
+15:47:26  INFO        -> pcb4
+15:47:28  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:47:28  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:52:31  INFO           AUROC = 0.9857
+15:52:31  INFO        -> pipe_fryum
+15:52:32  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:52:33  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:54:21  INFO           AUROC = 0.9946
+15:54:21  INFO      [Trial 8] Mean AUROC = 0.9712
+15:54:21  INFO      [Trial 9] IM448_DINOv2B14reg_L7_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+15:54:21  INFO        -> candle
+15:54:23  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:54:23  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+15:59:18  INFO           AUROC = 0.9455
+15:59:18  INFO        -> capsules
+15:59:20  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+15:59:20  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:01:33  INFO           AUROC = 0.9549
+16:01:33  INFO        -> cashew
+16:01:35  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:01:35  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:03:23  INFO           AUROC = 0.9078
+16:03:23  WARNING     [PRUNED] after 3 class(es)  mean=0.9361  median@step3=0.9510  Δ=-0.0149  (refs=8)
+16:03:23  INFO      [Trial 10] IM448_DINOv2B14reg_L5_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+16:03:23  INFO        -> candle
+16:03:24  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:03:24  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:08:20  INFO           AUROC = 0.9513
+16:08:20  INFO        -> capsules
+16:08:21  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:08:21  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:10:35  INFO           AUROC = 0.9864
+16:10:35  INFO        -> cashew
+16:10:36  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:10:36  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:12:25  INFO           AUROC = 0.9326
+16:12:25  INFO        -> chewinggum
+16:12:26  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:12:26  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:14:15  INFO           AUROC = 0.9753
+16:14:15  INFO        -> fryum
+16:14:16  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:14:16  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:16:04  INFO           AUROC = 0.9735
+16:16:04  INFO        -> macaroni1
+16:16:05  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:16:05  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:21:01  INFO           AUROC = 0.9604
+16:21:01  INFO        -> macaroni2
+16:21:02  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:21:03  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:25:42  INFO           AUROC = 0.9900
+16:25:42  INFO        -> pcb1
+16:25:44  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:25:44  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:30:44  INFO           AUROC = 0.9707
+16:30:44  INFO        -> pcb2
+16:30:45  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:30:45  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:35:41  INFO           AUROC = 0.9653
+16:35:41  INFO        -> pcb3
+16:35:43  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:35:43  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:40:34  INFO           AUROC = 0.9951
+16:40:34  INFO        -> pcb4
+16:40:35  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:40:36  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:45:37  INFO           AUROC = 0.9810
+16:45:37  INFO        -> pipe_fryum
+16:45:38  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:45:39  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:47:26  INFO           AUROC = 0.9968
+16:47:26  INFO      [Trial 10] Mean AUROC = 0.9732
+16:47:26  INFO      [Trial 11] IM448_DINOv2B14reg_L5_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+16:47:26  INFO        -> candle
+16:47:28  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:47:28  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:52:24  INFO           AUROC = 0.9513
+16:52:24  INFO        -> capsules
+16:52:25  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:52:25  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:54:39  INFO           AUROC = 0.9864
+16:54:39  INFO        -> cashew
+16:54:40  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:54:40  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:56:29  INFO           AUROC = 0.9326
+16:56:29  INFO        -> chewinggum
+16:56:30  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:56:30  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+16:58:19  INFO           AUROC = 0.9753
+16:58:19  INFO        -> fryum
+16:58:21  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+16:58:21  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:00:08  INFO           AUROC = 0.9735
+17:00:08  INFO        -> macaroni1
+17:00:09  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:00:10  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:05:05  INFO           AUROC = 0.9604
+17:05:05  INFO        -> macaroni2
+17:05:06  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:05:07  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:09:47  INFO           AUROC = 0.9900
+17:09:47  INFO        -> pcb1
+17:09:49  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:09:49  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:14:49  INFO           AUROC = 0.9707
+17:14:49  INFO        -> pcb2
+17:14:50  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:14:50  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:19:46  INFO           AUROC = 0.9653
+17:19:46  INFO        -> pcb3
+17:19:47  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:19:48  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:24:40  INFO           AUROC = 0.9951
+17:24:40  INFO        -> pcb4
+17:24:41  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:24:41  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:29:42  INFO           AUROC = 0.9810
+17:29:42  INFO        -> pipe_fryum
+17:29:43  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:29:43  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:31:31  INFO           AUROC = 0.9968
+17:31:31  INFO      [Trial 11] Mean AUROC = 0.9732
+17:31:31  INFO      [Trial 12] IM448_DINOv2B14reg_L5_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+17:31:31  INFO        -> candle
+17:31:33  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:31:33  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:36:29  INFO           AUROC = 0.9513
+17:36:29  INFO        -> capsules
+17:36:30  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:36:30  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:38:44  INFO           AUROC = 0.9864
+17:38:44  INFO        -> cashew
+17:38:46  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:38:46  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:40:34  INFO           AUROC = 0.9326
+17:40:34  INFO        -> chewinggum
+17:40:35  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:40:35  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:42:24  INFO           AUROC = 0.9753
+17:42:24  INFO        -> fryum
+17:42:26  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:42:26  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:44:13  INFO           AUROC = 0.9735
+17:44:13  INFO        -> macaroni1
+17:44:15  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:44:15  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:49:11  INFO           AUROC = 0.9604
+17:49:11  INFO        -> macaroni2
+17:49:12  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:49:13  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:53:52  INFO           AUROC = 0.9900
+17:53:52  INFO        -> pcb1
+17:53:54  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:53:54  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+17:58:54  INFO           AUROC = 0.9707
+17:58:54  INFO        -> pcb2
+17:58:55  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+17:58:55  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:03:51  INFO           AUROC = 0.9653
+18:03:51  INFO        -> pcb3
+18:03:53  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:03:53  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:08:52  INFO           AUROC = 0.9951
+18:08:52  INFO        -> pcb4
+18:08:54  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:08:54  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:13:57  INFO           AUROC = 0.9810
+18:13:57  INFO        -> pipe_fryum
+18:13:59  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:13:59  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:15:47  INFO           AUROC = 0.9968
+18:15:47  INFO      [Trial 12] Mean AUROC = 0.9732
+18:15:47  INFO      [Trial 13] IM448_DINOv2B14reg_L5_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+18:15:47  INFO        -> candle
+18:15:49  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:15:49  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:20:45  INFO           AUROC = 0.9513
+18:20:46  INFO        -> capsules
+18:20:47  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:20:47  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:23:01  INFO           AUROC = 0.9864
+18:23:01  INFO        -> cashew
+18:23:03  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:23:03  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:24:51  INFO           AUROC = 0.9326
+18:24:51  INFO        -> chewinggum
+18:24:53  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:24:53  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:26:42  INFO           AUROC = 0.9753
+18:26:42  INFO        -> fryum
+18:26:43  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:26:43  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:28:31  INFO           AUROC = 0.9735
+18:28:31  INFO        -> macaroni1
+18:28:33  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:28:33  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:33:29  INFO           AUROC = 0.9604
+18:33:29  INFO        -> macaroni2
+18:33:31  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:33:31  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:38:11  INFO           AUROC = 0.9900
+18:38:11  INFO        -> pcb1
+18:38:12  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:38:13  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:43:13  INFO           AUROC = 0.9707
+18:43:13  INFO        -> pcb2
+18:43:15  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:43:15  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:48:10  INFO           AUROC = 0.9653
+18:48:11  INFO        -> pcb3
+18:48:12  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:48:12  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:53:04  INFO           AUROC = 0.9951
+18:53:04  INFO        -> pcb4
+18:53:06  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:53:06  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:58:07  INFO           AUROC = 0.9810
+18:58:07  INFO        -> pipe_fryum
+18:58:09  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+18:58:09  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+18:59:58  INFO           AUROC = 0.9968
+18:59:58  INFO      [Trial 13] Mean AUROC = 0.9732
+18:59:58  INFO      [Trial 14] IM448_DINOv2B14reg_L4_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+18:59:58  INFO        -> candle
+18:59:59  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:00:00  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:04:58  INFO           AUROC = 0.9397
+19:04:58  INFO        -> capsules
+19:04:59  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:04:59  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:07:14  INFO           AUROC = 0.9972
+19:07:14  INFO        -> cashew
+19:07:16  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:07:16  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:09:04  INFO           AUROC = 0.7766
+19:09:04  INFO        -> chewinggum
+19:09:06  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:09:06  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:10:55  INFO           AUROC = 0.9250
+19:10:55  INFO        -> fryum
+19:10:57  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:10:57  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:12:45  INFO           AUROC = 0.9723
+19:12:45  INFO        -> macaroni1
+19:12:47  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:12:47  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:17:45  INFO           AUROC = 0.9643
+19:17:45  INFO        -> macaroni2
+19:17:46  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:17:46  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:22:28  INFO           AUROC = 0.9972
+19:22:28  INFO        -> pcb1
+19:22:29  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:22:30  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:27:33  INFO           AUROC = 0.9676
+19:27:33  INFO        -> pcb2
+19:27:34  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:27:34  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:32:32  INFO           AUROC = 0.9761
+19:32:32  INFO        -> pcb3
+19:32:33  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:32:33  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:37:26  INFO           AUROC = 0.9914
+19:37:26  WARNING     [PRUNED] after 10 class(es)  mean=0.9507  median@step10=0.9688  Δ=-0.0180  (refs=12)
+19:37:27  INFO      [Trial 15] IM448_DINOv2B14reg_L5_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+19:37:27  INFO        -> candle
+19:37:28  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:37:28  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:42:26  INFO           AUROC = 0.9513
+19:42:26  INFO        -> capsules
+19:42:27  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:42:28  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:44:42  INFO           AUROC = 0.9864
+19:44:42  INFO        -> cashew
+19:44:44  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:44:44  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:46:33  INFO           AUROC = 0.9326
+19:46:33  INFO        -> chewinggum
+19:46:34  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:46:34  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:48:24  INFO           AUROC = 0.9753
+19:48:24  INFO        -> fryum
+19:48:25  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:48:25  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:50:14  INFO           AUROC = 0.9735
+19:50:14  INFO        -> macaroni1
+19:50:15  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:50:15  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:55:14  INFO           AUROC = 0.9604
+19:55:14  INFO        -> macaroni2
+19:55:16  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+19:55:16  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+19:59:59  INFO           AUROC = 0.9900
+19:59:59  INFO        -> pcb1
+20:00:00  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:00:00  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:05:02  INFO           AUROC = 0.9707
+20:05:02  INFO        -> pcb2
+20:05:04  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:05:04  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:10:01  INFO           AUROC = 0.9653
+20:10:01  INFO        -> pcb3
+20:10:02  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:10:03  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:14:54  INFO           AUROC = 0.9951
+20:14:54  INFO        -> pcb4
+20:14:56  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:14:56  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:19:58  INFO           AUROC = 0.9810
+20:19:58  INFO        -> pipe_fryum
+20:20:00  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:20:00  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:21:48  INFO           AUROC = 0.9968
+20:21:48  INFO      [Trial 15] Mean AUROC = 0.9732
+20:21:48  INFO      [Trial 16] IM448_DINOv2B14reg_L5_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+20:21:48  INFO        -> candle
+20:21:49  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:21:49  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:26:46  INFO           AUROC = 0.9513
+20:26:46  INFO        -> capsules
+20:26:47  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:26:47  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:29:01  INFO           AUROC = 0.9864
+20:29:01  INFO        -> cashew
+20:29:03  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:29:03  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:30:51  INFO           AUROC = 0.9326
+20:30:51  INFO        -> chewinggum
+20:30:52  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:30:53  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:32:41  INFO           AUROC = 0.9753
+20:32:41  INFO        -> fryum
+20:32:43  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:32:43  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:34:31  INFO           AUROC = 0.9735
+20:34:31  INFO        -> macaroni1
+20:34:32  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:34:33  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:39:29  INFO           AUROC = 0.9604
+20:39:29  INFO        -> macaroni2
+20:39:30  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:39:30  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:44:11  INFO           AUROC = 0.9900
+20:44:11  INFO        -> pcb1
+20:44:12  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:44:12  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+20:49:13  INFO           AUROC = 0.9707
+20:49:13  INFO        -> pcb2
+20:49:14  INFO      Loading pretrained weights from Hugging Face hub (timm/vit_base_patch14_reg4_dinov2.lvd142m)
+20:49:14  INFO      [timm/vit_base_patch14_reg4_dinov2.lvd142m] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
