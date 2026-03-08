@@ -1,0 +1,9 @@
+candle: 0.9562755102040816
+capsules: 0.953583154081286
+cashew: 0.9114432989690722
+chewinggum: 0.9733973397339734
+pruned_after_n_classes: 4
+pruned_at_class: chewinggum
+running_mean: 0.9486748257471033
+median_at_step: 0.9628575591218489
+delta_vs_median: -0.014182733374745626

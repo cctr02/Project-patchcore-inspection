@@ -1239,3 +1239,486 @@ Each trial is appended as it finishes (complete, pruned, or failed).
 | pcb4 | 0.9841 |
 | pipe_fryum | 0.9945 |
 
+---
+## Trial 55 — COMPLETE ✅  `2026-03-08 00:36:51`
+**Name**: `IM448_DINOv2B14reg_L4-7-8_P015_D768-768_PS-1_AN-3_S0`
+
+**Mean AUROC**: **0.9722** (12 classes)
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9607 |
+| capsules | 0.9612 |
+| cashew | 0.9640 |
+| chewinggum | 0.9944 |
+| fryum | 0.9639 |
+| macaroni1 | 0.9676 |
+| macaroni2 | 0.9428 |
+| pcb1 | 0.9756 |
+| pcb2 | 0.9604 |
+| pcb3 | 0.9965 |
+| pcb4 | 0.9841 |
+| pipe_fryum | 0.9955 |
+
+---
+## Trial 56 — COMPLETE ✅  `2026-03-08 01:38:09`
+**Name**: `IM448_DINOv2B14reg_L2-4-8_P015_D768-768_PS-1_AN-3_S0`
+
+**Mean AUROC**: **0.9693** (12 classes)
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9547 |
+| capsules | 0.9652 |
+| cashew | 0.9567 |
+| chewinggum | 0.9972 |
+| fryum | 0.9589 |
+| macaroni1 | 0.9622 |
+| macaroni2 | 0.9286 |
+| pcb1 | 0.9716 |
+| pcb2 | 0.9634 |
+| pcb3 | 0.9958 |
+| pcb4 | 0.9826 |
+| pipe_fryum | 0.9950 |
+
+---
+## Trial 57 — COMPLETE ✅  `2026-03-08 02:46:50`
+**Name**: `IM448_DINOv2B14reg_L3-4-8_P018_D768-768_PS-1_AN-3_S0`
+
+**Mean AUROC**: **0.9701** (12 classes)
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9568 |
+| capsules | 0.9622 |
+| cashew | 0.9654 |
+| chewinggum | 0.9961 |
+| fryum | 0.9602 |
+| macaroni1 | 0.9634 |
+| macaroni2 | 0.9291 |
+| pcb1 | 0.9719 |
+| pcb2 | 0.9619 |
+| pcb3 | 0.9956 |
+| pcb4 | 0.9832 |
+| pipe_fryum | 0.9952 |
+
+---
+## Trial 58 — COMPLETE ✅  `2026-03-08 03:29:22`
+**Name**: `IM448_DINOv2B14reg_L2-5-8_P009_D768-768_PS-1_AN-3_S0`
+
+**Mean AUROC**: **0.9692** (12 classes)
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9556 |
+| capsules | 0.9605 |
+| cashew | 0.9540 |
+| chewinggum | 0.9978 |
+| fryum | 0.9604 |
+| macaroni1 | 0.9636 |
+| macaroni2 | 0.9261 |
+| pcb1 | 0.9725 |
+| pcb2 | 0.9648 |
+| pcb3 | 0.9956 |
+| pcb4 | 0.9841 |
+| pipe_fryum | 0.9955 |
+
+---
+## Trial 59 — PRUNED ✂️   `2026-03-08 03:41:20`
+**Name**: `IM448_DINOv2B14reg_L2-3-8-9_P014_D768-768_PS-1_AN-3_S0`
+
+**Stopped after**: 3 class(es) (pruned at `cashew`)
+**Running mean**: 0.9384
+
+**Pruning criterion** (MedianPruner — running mean vs completed trials at same step):
+
+| Metric | Value |
+|--------|------:|
+| Running mean (this trial) | 0.9384 |
+| Median @ step 3     | 0.9553 |
+| Mean @ step 3       | 0.9485 |
+| Best @ step 3       | 0.9620 |
+| Worst @ step 3      | 0.9084 |
+| Δ vs median                | -0.0169 (-1.8%) |
+| Reference trials           | 46 |
+
+> Running mean **0.9384** is below the median **0.9553** by 0.0169 (1.8%) → pruned.
+
+**Partial results:**
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9383 |
+| capsules | 0.9548 |
+| cashew | 0.9222 |
+
+---
+## Trial 60 — COMPLETE ✅  `2026-03-08 04:20:39`
+**Name**: `IM448_DINOv2B14reg_L3-5-7_P008_D768-768_PS-1_AN-5_S0`
+
+**Mean AUROC**: **0.9726** (12 classes)
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9530 |
+| capsules | 0.9736 |
+| cashew | 0.9375 |
+| chewinggum | 0.9856 |
+| fryum | 0.9656 |
+| macaroni1 | 0.9742 |
+| macaroni2 | 0.9772 |
+| pcb1 | 0.9800 |
+| pcb2 | 0.9546 |
+| pcb3 | 0.9958 |
+| pcb4 | 0.9808 |
+| pipe_fryum | 0.9931 |
+
+---
+## Trial 61 — PRUNED ✂️   `2026-03-08 04:59:50`
+**Name**: `IM448_DINOv2B14reg_L1-5-7_P008_D768-768_PS-3_AN-5_S0`
+
+**Stopped after**: 12 class(es) (pruned at `pipe_fryum`)
+**Running mean**: 0.9374
+
+**Pruning criterion** (MedianPruner — running mean vs completed trials at same step):
+
+| Metric | Value |
+|--------|------:|
+| Running mean (this trial) | 0.9374 |
+| Median @ step 12     | 0.9692 |
+| Mean @ step 12       | 0.9580 |
+| Best @ step 12       | 0.9726 |
+| Worst @ step 12      | 0.8909 |
+| Δ vs median                | -0.0318 (-3.3%) |
+| Reference trials           | 47 |
+
+> Running mean **0.9374** is below the median **0.9692** by 0.0318 (3.3%) → pruned.
+
+**Partial results:**
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9677 |
+| capsules | 0.9021 |
+| cashew | 0.9491 |
+| chewinggum | 0.9848 |
+| fryum | 0.9468 |
+| macaroni1 | 0.8574 |
+| macaroni2 | 0.8019 |
+| pcb1 | 0.9632 |
+| pcb2 | 0.9191 |
+| pcb3 | 0.9861 |
+| pcb4 | 0.9955 |
+| pipe_fryum | 0.9748 |
+
+---
+## Trial 62 — COMPLETE ✅  `2026-03-08 05:48:04`
+**Name**: `IM448_DINOv2B14reg_L3-5-7_P011_D768-768_PS-1_AN-5_S0`
+
+**Mean AUROC**: **0.9722** (12 classes)
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9526 |
+| capsules | 0.9731 |
+| cashew | 0.9423 |
+| chewinggum | 0.9872 |
+| fryum | 0.9631 |
+| macaroni1 | 0.9740 |
+| macaroni2 | 0.9763 |
+| pcb1 | 0.9792 |
+| pcb2 | 0.9477 |
+| pcb3 | 0.9957 |
+| pcb4 | 0.9819 |
+| pipe_fryum | 0.9936 |
+
+---
+## Trial 63 — PRUNED ✂️   `2026-03-08 05:59:43`
+**Name**: `IM448_DINOv2B14reg_L2-3-7_P011_D768-768_PS-1_AN-5_S0`
+
+**Stopped after**: 4 class(es) (pruned at `chewinggum`)
+**Running mean**: 0.9568
+
+**Pruning criterion** (MedianPruner — running mean vs completed trials at same step):
+
+| Metric | Value |
+|--------|------:|
+| Running mean (this trial) | 0.9568 |
+| Median @ step 4     | 0.9629 |
+| Mean @ step 4       | 0.9579 |
+| Best @ step 4       | 0.9701 |
+| Worst @ step 4      | 0.9099 |
+| Δ vs median                | -0.0060 (-0.6%) |
+| Reference trials           | 48 |
+
+> Running mean **0.9568** is below the median **0.9629** by 0.0060 (0.6%) → pruned.
+
+**Partial results:**
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9544 |
+| capsules | 0.9674 |
+| cashew | 0.9221 |
+| chewinggum | 0.9834 |
+
+---
+## Trial 64 — PRUNED ✂️   `2026-03-08 06:10:17`
+**Name**: `IM448_DINOv2B14reg_L3-5-7_P009_D768-768_PS-1_AN-5_S0`
+
+**Stopped after**: 4 class(es) (pruned at `chewinggum`)
+**Running mean**: 0.9622
+
+**Pruning criterion** (MedianPruner — running mean vs completed trials at same step):
+
+| Metric | Value |
+|--------|------:|
+| Running mean (this trial) | 0.9622 |
+| Median @ step 4     | 0.9629 |
+| Mean @ step 4       | 0.9579 |
+| Best @ step 4       | 0.9701 |
+| Worst @ step 4      | 0.9099 |
+| Δ vs median                | -0.0006 (-0.1%) |
+| Reference trials           | 48 |
+
+> Running mean **0.9622** is below the median **0.9629** by 0.0006 (0.1%) → pruned.
+
+**Partial results:**
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9533 |
+| capsules | 0.9720 |
+| cashew | 0.9369 |
+| chewinggum | 0.9867 |
+
+---
+## Trial 65 — PRUNED ✂️   `2026-03-08 06:17:43`
+**Name**: `IM448_DINOv2B14reg_L2-7_P005_D768-768_PS-1_AN-5_S0`
+
+**Stopped after**: 4 class(es) (pruned at `chewinggum`)
+**Running mean**: 0.9487
+
+**Pruning criterion** (MedianPruner — running mean vs completed trials at same step):
+
+| Metric | Value |
+|--------|------:|
+| Running mean (this trial) | 0.9487 |
+| Median @ step 4     | 0.9629 |
+| Mean @ step 4       | 0.9579 |
+| Best @ step 4       | 0.9701 |
+| Worst @ step 4      | 0.9099 |
+| Δ vs median                | -0.0142 (-1.5%) |
+| Reference trials           | 48 |
+
+> Running mean **0.9487** is below the median **0.9629** by 0.0142 (1.5%) → pruned.
+
+**Partial results:**
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9563 |
+| capsules | 0.9536 |
+| cashew | 0.9114 |
+| chewinggum | 0.9734 |
+
+---
+## Trial 66 — PRUNED ✂️   `2026-03-08 06:27:59`
+**Name**: `IM448_DINOv2B14reg_L3-5-7_P007_D768-768_PS-1_AN-5_S0`
+
+**Stopped after**: 5 class(es) (pruned at `fryum`)
+**Running mean**: 0.9627
+
+**Pruning criterion** (MedianPruner — running mean vs completed trials at same step):
+
+| Metric | Value |
+|--------|------:|
+| Running mean (this trial) | 0.9627 |
+| Median @ step 5     | 0.9631 |
+| Mean @ step 5       | 0.9580 |
+| Best @ step 5       | 0.9688 |
+| Worst @ step 5      | 0.9220 |
+| Δ vs median                | -0.0004 (-0.0%) |
+| Reference trials           | 48 |
+
+> Running mean **0.9627** is below the median **0.9631** by 0.0004 (0.0%) → pruned.
+
+**Partial results:**
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9531 |
+| capsules | 0.9729 |
+| cashew | 0.9378 |
+| chewinggum | 0.9846 |
+| fryum | 0.9652 |
+
+---
+## Trial 67 — PRUNED ✂️   `2026-03-08 07:15:38`
+**Name**: `IM448_DINOv2B14reg_L3-7-11_P012_D768-768_PS-1_AN-5_S0`
+
+**Stopped after**: 11 class(es) (pruned at `pcb4`)
+**Running mean**: 0.9441
+
+**Pruning criterion** (MedianPruner — running mean vs completed trials at same step):
+
+| Metric | Value |
+|--------|------:|
+| Running mean (this trial) | 0.9441 |
+| Median @ step 11     | 0.9669 |
+| Mean @ step 11       | 0.9553 |
+| Best @ step 11       | 0.9707 |
+| Worst @ step 11      | 0.8829 |
+| Δ vs median                | -0.0228 (-2.4%) |
+| Reference trials           | 48 |
+
+> Running mean **0.9441** is below the median **0.9669** by 0.0228 (2.4%) → pruned.
+
+**Partial results:**
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9481 |
+| capsules | 0.9680 |
+| cashew | 0.9663 |
+| chewinggum | 0.9798 |
+| fryum | 0.9570 |
+| macaroni1 | 0.9465 |
+| macaroni2 | 0.7918 |
+| pcb1 | 0.9707 |
+| pcb2 | 0.9410 |
+| pcb3 | 0.9788 |
+| pcb4 | 0.9374 |
+
+---
+## Trial 68 — PRUNED ✂️   `2026-03-08 07:25:22`
+**Name**: `IM448_DINOv2B14reg_L1-3-7_P008_D768-768_PS-1_AN-5_S0`
+
+**Stopped after**: 4 class(es) (pruned at `chewinggum`)
+**Running mean**: 0.9583
+
+**Pruning criterion** (MedianPruner — running mean vs completed trials at same step):
+
+| Metric | Value |
+|--------|------:|
+| Running mean (this trial) | 0.9583 |
+| Median @ step 4     | 0.9629 |
+| Mean @ step 4       | 0.9579 |
+| Best @ step 4       | 0.9701 |
+| Worst @ step 4      | 0.9099 |
+| Δ vs median                | -0.0046 (-0.5%) |
+| Reference trials           | 48 |
+
+> Running mean **0.9583** is below the median **0.9629** by 0.0046 (0.5%) → pruned.
+
+**Partial results:**
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9576 |
+| capsules | 0.9598 |
+| cashew | 0.9304 |
+| chewinggum | 0.9853 |
+
+---
+## Trial 69 — PRUNED ✂️   `2026-03-08 07:32:01`
+**Name**: `IM448_DINOv2B14reg_L5-7-11_P004_D768-768_PS-1_AN-5_S0`
+
+**Stopped after**: 4 class(es) (pruned at `chewinggum`)
+**Running mean**: 0.9623
+
+**Pruning criterion** (MedianPruner — running mean vs completed trials at same step):
+
+| Metric | Value |
+|--------|------:|
+| Running mean (this trial) | 0.9623 |
+| Median @ step 4     | 0.9629 |
+| Mean @ step 4       | 0.9579 |
+| Best @ step 4       | 0.9701 |
+| Worst @ step 4      | 0.9099 |
+| Δ vs median                | -0.0006 (-0.1%) |
+| Reference trials           | 48 |
+
+> Running mean **0.9623** is below the median **0.9629** by 0.0006 (0.1%) → pruned.
+
+**Partial results:**
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9382 |
+| capsules | 0.9835 |
+| cashew | 0.9547 |
+| chewinggum | 0.9727 |
+
+---
+## Trial 70 — PRUNED ✂️   `2026-03-08 07:58:58`
+**Name**: `IM448_DINOv2B14reg_L4_P006_D768-768_PS-1_AN-5_S0`
+
+**Stopped after**: 10 class(es) (pruned at `pcb3`)
+**Running mean**: 0.9493
+
+**Pruning criterion** (MedianPruner — running mean vs completed trials at same step):
+
+| Metric | Value |
+|--------|------:|
+| Running mean (this trial) | 0.9493 |
+| Median @ step 10     | 0.9653 |
+| Mean @ step 10       | 0.9536 |
+| Best @ step 10       | 0.9697 |
+| Worst @ step 10      | 0.8819 |
+| Δ vs median                | -0.0160 (-1.7%) |
+| Reference trials           | 48 |
+
+> Running mean **0.9493** is below the median **0.9653** by 0.0160 (1.7%) → pruned.
+
+**Partial results:**
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9325 |
+| capsules | 0.9977 |
+| cashew | 0.7906 |
+| chewinggum | 0.9061 |
+| fryum | 0.9727 |
+| macaroni1 | 0.9612 |
+| macaroni2 | 0.9967 |
+| pcb1 | 0.9694 |
+| pcb2 | 0.9741 |
+| pcb3 | 0.9917 |
+
+---
+## Trial 71 — PRUNED ✂️   `2026-03-08 08:44:20`
+**Name**: `IM448_DINOv2B14reg_L3-7-11_P013_D768-768_PS-1_AN-5_S0`
+
+**Stopped after**: 10 class(es) (pruned at `pcb3`)
+**Running mean**: 0.9439
+
+**Pruning criterion** (MedianPruner — running mean vs completed trials at same step):
+
+| Metric | Value |
+|--------|------:|
+| Running mean (this trial) | 0.9439 |
+| Median @ step 10     | 0.9653 |
+| Mean @ step 10       | 0.9536 |
+| Best @ step 10       | 0.9697 |
+| Worst @ step 10      | 0.8819 |
+| Δ vs median                | -0.0214 (-2.2%) |
+| Reference trials           | 48 |
+
+> Running mean **0.9439** is below the median **0.9653** by 0.0214 (2.2%) → pruned.
+
+**Partial results:**
+
+| Class | AUROC |
+|-------|------:|
+| candle | 0.9463 |
+| capsules | 0.9609 |
+| cashew | 0.9686 |
+| chewinggum | 0.9793 |
+| fryum | 0.9574 |
+| macaroni1 | 0.9473 |
+| macaroni2 | 0.7908 |
+| pcb1 | 0.9706 |
+| pcb2 | 0.9392 |
+| pcb3 | 0.9785 |
+

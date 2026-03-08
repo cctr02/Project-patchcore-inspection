@@ -1,0 +1,8 @@
+candle: 0.9382653061224488
+capsules: 0.9548284840937392
+cashew: 0.9221649484536084
+pruned_after_n_classes: 3
+pruned_at_class: cashew
+running_mean: 0.9384195795565988
+median_at_step: 0.9552763874448275
+delta_vs_median: -0.01685680788822863

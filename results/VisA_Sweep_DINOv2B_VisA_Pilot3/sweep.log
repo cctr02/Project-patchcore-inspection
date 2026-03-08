@@ -1,0 +1,12 @@
+09:51:11  INFO      Study       : DINOv2B_VisA_Pilot3
+09:51:11  INFO      Config      : contribution\sweep_configs\DINOv2B_VisA_Pilot3.yaml
+09:51:11  INFO      Backbone    : dinov2_vitb14_reg  (DINOv2B14reg)
+09:51:11  INFO      Dataset     : visa  (C:\Users\trloj\Code\VisA_20220922)
+09:51:11  INFO      Classes (12): ['candle', 'capsules', 'cashew', 'chewinggum', 'fryum', 'macaroni1', '...']
+09:51:11  INFO      Layer mode  : dynamic  candidates=[3, 4, 5, 7, 8]  n_layers=[1, 2, 3]  prefix=blocks
+09:51:11  INFO      n_trials    : 50
+09:51:11  INFO      Sweep dir   : C:\Users\trloj\Code\Project-patchcore-inspection\results\VisA_Sweep_DINOv2B_VisA_Pilot3
+09:51:11  INFO      Device      : cuda:0
+09:51:12  INFO      Already completed: 0 trial(s). Running 50 more.
+09:51:12  INFO      [Trial 0] IM448_DINOv2B14reg_L5-8_P010_D768-768_PS-1_AN-3_S0  coreset=0.1000
+09:51:12  INFO        -> candle
